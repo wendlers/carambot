@@ -1,9 +1,10 @@
 #!/usr/bin/python
 
 from util.udp import UdpServer 
-from io.digital import DigitalIO
 from device.dcmctl import MCtlChannel, DualChannelMCtl 
 from robot.vehicle import Vehicle
+from usherpa.api import *                    
+from usherpa.serialcomm import *
 
 SERVER_PORT = 50007
 
@@ -11,16 +12,27 @@ class VehicleServer(UdpServer):
 
 	vehicle = None
 
+	ps 	= None
+	
 	def __init__(self, bindTo = "", port = SERVER_PORT):
 		UdpServer.__init__(self, bindTo, port)
 
-		io = DigitalIO()
-
-		mch1 = MCtlChannel(io.getOutput(7), io.getOutput(8))
-		mch2 = MCtlChannel(io.getOutput(9), io.getOutput(10))
+		self.ps = SerialPacketStream("/dev/ttyS0")
+		self.ps.start()
+		
+		us = uSherpa(self.ps)
+		
+		# set xfer retrys to 3
+		us.retrys = 3
+			
+		mch1 = MCtlChannel(us, uSherpa.PIN_1_4, uSherpa.PIN_1_5)
+		mch2 = MCtlChannel(us, uSherpa.PIN_1_6, uSherpa.PIN_1_7)
 		mctl = DualChannelMCtl(mch1, mch2)
 		self.vehicle  = Vehicle(mctl)
 
+	def end(self):
+		self.ps.stop()
+		
 	def dispatch(self, seq, data, clientIp, clientPort):
 		print "[%s %s]: %i %s" % (clientIp,clientPort, seq, data)
 
@@ -56,5 +68,6 @@ class VehicleServer(UdpServer):
 try:
 	srv = VehicleServer()
 	srv.run()
+	srv.end()
 except Exception as e:
 	print e

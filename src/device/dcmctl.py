@@ -22,11 +22,11 @@ class MCtlChannel:
 		self.us.digitalWrite(self.pin1, uSherpa.LOW)  
 		self.us.digitalWrite(self.pin2, uSherpa.LOW)
 
-	def fw(self):
+	def bw(self):
 		self.us.digitalWrite(self.pin1, uSherpa.LOW)  
 		self.us.digitalWrite(self.pin2, uSherpa.HIGH)
 
-	def bw(self):
+	def fw(self):
 		self.us.digitalWrite(self.pin1, uSherpa.HIGH)  
 		self.us.digitalWrite(self.pin2, uSherpa.HIGH)
 

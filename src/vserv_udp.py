@@ -1,7 +1,11 @@
 #!/usr/bin/python
 
 from util.udp import UdpServer 
-from device.dcmctl import MCtlChannel, DualChannelMCtl 
+
+from device.dcmctl import MCtlChannel, DualChannelMCtl
+from device.servo  import Servo 
+from device.rangefinder import RangeFinder 
+
 from robot.vehicle import Vehicle
 
 from usherpa.api import *                    
@@ -12,13 +16,15 @@ SERVER_PORT = 50007
 class VehicleServer(UdpServer):
 
 	vehicle = None
-
-	ps 	= None
+	pan		= None
+	rf		= None
+	ps 		= None
 	
 	def __init__(self, bindTo = "", port = SERVER_PORT):
 		UdpServer.__init__(self, bindTo, port)
 
-		self.ps = SerialPacketStream("/dev/ttyS0")
+		self.ps = SerialPacketStream("/dev/ttyUSB0")
+		# self.ps = SerialPacketStream("/dev/ttyS0")
 		self.ps.start()
 		
 		us = uSherpa(self.ps)
@@ -30,6 +36,10 @@ class VehicleServer(UdpServer):
 		mch2 = MCtlChannel(us, uSherpa.PIN_1_6, uSherpa.PIN_1_7)
 		mctl = DualChannelMCtl(mch1, mch2)
 		self.vehicle  = Vehicle(mctl)
+
+		self.pan = Servo(us, uSherpa.PIN_2_2)
+
+		self.rf = RangeFinder(us, uSherpa.PIN_2_0)
 
 	def end(self):
 		self.ps.stop()
@@ -67,12 +77,14 @@ class VehicleServer(UdpServer):
 			elif c == "pan":
 
 				d = data["pos"]
-
+				self.pan.goTo(d)
 				print " -> set pan to pos", d
 
 			elif c == "rf":
 
-				print " -> range finder"
+				r = self.rf.range()
+				print " -> range finder range:", r
+				res = { "msgId" : "range", "msg" : `r` }
 
 			self.respond(clientIp,clientPort, seq, res)
 

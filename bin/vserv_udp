@@ -2,4 +2,4 @@
 
 export PYTHONPATH=./lib
 
-python ./app/vserv_udp.py
+python ./src/vserv_udp.py

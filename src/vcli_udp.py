@@ -7,8 +7,8 @@ from util.udp import UdpClient, UdpCommException
 
 CLIENT_PORT = 50008
 
-#SERVER_IP   = "127.0.0.1"
-SERVER_IP   = "172.16.100.25"
+SERVER_IP   = "127.0.0.1"
+#SERVER_IP   = "172.16.100.25"
 SERVER_PORT = 50007
 SEND_TIMEOUT= 1
 
@@ -29,15 +29,15 @@ class VehicleClient(UdpClient, CursesScreen):
 	def __del__(self):
 
 		try:
-			CursesScreen.__del__(self)
+			self.end()
 		except:
 			pass
 
 		try:
-			UdpClient.__del__(self)
+			self.socket.close()
 		except:
 			pass
-	
+
 	def initScreen(self):
 
 		curses.start_color()
@@ -81,19 +81,37 @@ class VehicleClient(UdpClient, CursesScreen):
 
 			if c == curses.KEY_UP: 
 				self.getScreen().addstr("FORWARD", self.YELLOW)	
-				req = { "msgId" : "fw" }
+				req = { "msgId" : "mv", "dir" : "fw" }
 			elif c == curses.KEY_DOWN: 
 				self.getScreen().addstr("BACKWARD", self.YELLOW)	
-				req = { "msgId" : "bw" }
+				req = { "msgId" : "mv", "dir" : "bw" }
 			elif c == curses.KEY_LEFT: 
 				self.getScreen().addstr("LEFT", self.YELLOW)	
-				req = { "msgId" : "le" }
+				req = { "msgId" : "mv", "dir" : "le" }
 			elif c == curses.KEY_RIGHT: 
 				self.getScreen().addstr("RIGHT", self.YELLOW)	
-				req = { "msgId" : "ri" }
+				req = { "msgId" : "mv", "dir" : "ri" }
 			elif c == ord(' '): 
 				self.getScreen().addstr("BREAK", self.YELLOW)	
-				req = { "msgId" : "br" }
+				req = { "msgId" : "mv", "dir" : "br" }
+			elif c == ord('a'): 
+				self.getScreen().addstr("PAN-0-DEG", self.YELLOW)	
+				req = { "msgId" : "pan", "pos" : 0 }
+			elif c == ord('s'): 
+				self.getScreen().addstr("PAN-45-DEG", self.YELLOW)	
+				req = { "msgId" : "pan", "pos" : 45 }
+			elif c == ord('d'): 
+				self.getScreen().addstr("PAN-90-DEG", self.YELLOW)	
+				req = { "msgId" : "pan", "pos" : 90 }
+			elif c == ord('f'): 
+				self.getScreen().addstr("PAN-135-DEG", self.YELLOW)	
+				req = { "msgId" : "pan", "pos" : 135 }
+			elif c == ord('g'): 
+				self.getScreen().addstr("PAN-180-DEG", self.YELLOW)	
+				req = { "msgId" : "pan", "pos" : 180 }
+			elif c == ord('r'): 
+				self.getScreen().addstr("RANGE", self.YELLOW)	
+				req = { "msgId" : "rf" }
 			elif c == ord('q'): 
 				break  # Exit the while()
 			else:

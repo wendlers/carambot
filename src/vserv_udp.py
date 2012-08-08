@@ -3,6 +3,7 @@
 from util.udp import UdpServer 
 from device.dcmctl import MCtlChannel, DualChannelMCtl 
 from robot.vehicle import Vehicle
+
 from usherpa.api import *                    
 from usherpa.serialcomm import *
 
@@ -37,26 +38,41 @@ class VehicleServer(UdpServer):
 		print "[%s %s]: %i %s" % (clientIp,clientPort, seq, data)
 
 		try:
-			c   = data["msgId"]
 			res = { "msgId" : "ok" }
 
-			if c == "fw": 
-				print " -> set vehicle to: FORWARD"	
-				self.vehicle.fw()
-			elif c == "bw": 
-				print " -> set vehicle to: BACKWARD"	
-				self.vehicle.bw()
-			elif c == "le": 
-				print " -> set vehicle to: LEFT"	
-				self.vehicle.le()
-			elif c == "ri": 
-				print " -> set vehicle to: RIGHT"	
-				self.vehicle.ri()
-			elif c == "br": 
-				print " -> set vehicle to BREAK"	
-				self.vehicle.br()
-			else:
-				res = { "msgId" : "err", "msg" : "Unknown command" }
+			c   = data["msgId"]
+
+			if c == "mv":
+
+				d = data["dir"]
+
+				if d == "fw": 
+					print " -> set vehicle to: FORWARD"	
+					self.vehicle.fw()
+				elif d == "bw": 
+					print " -> set vehicle to: BACKWARD"	
+					self.vehicle.bw()
+				elif d == "le": 
+					print " -> set vehicle to: LEFT"	
+					self.vehicle.le()
+				elif d == "ri": 
+					print " -> set vehicle to: RIGHT"	
+					self.vehicle.ri()
+				elif d == "br": 
+					print " -> set vehicle to BREAK"	
+					self.vehicle.br()
+				else:
+					res = { "msgId" : "err", "msg" : "Command mv: unknown direction " + d }
+
+			elif c == "pan":
+
+				d = data["pos"]
+
+				print " -> set pan to pos", d
+
+			elif c == "rf":
+
+				print " -> range finder"
 
 			self.respond(clientIp,clientPort, seq, res)
 

@@ -2,4 +2,4 @@
 
 export PYTHONPATH=./lib
 
-python ./app/vcli_udp.py
+python ./src/vcli_udp.py

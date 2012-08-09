@@ -12,7 +12,7 @@ SERVER_IP   = "127.0.0.1"
 SERVER_PORT = 50007
 SEND_TIMEOUT= 1
 
-class VehicleClient(UdpClient, CursesScreen):
+class CarambotClient(UdpClient, CursesScreen):
 
 	GREEN 	= None
 	RED		= None
@@ -109,9 +109,6 @@ class VehicleClient(UdpClient, CursesScreen):
 			elif c == ord('g'): 
 				self.getScreen().addstr("PAN-180-DEG", self.YELLOW)	
 				req = { "msgId" : "pan", "pos" : 180 }
-			elif c == ord('r'): 
-				self.getScreen().addstr("RANGE", self.YELLOW)	
-				req = { "msgId" : "rf" }
 			elif c == ord('q'): 
 				break  # Exit the while()
 			else:
@@ -146,7 +143,7 @@ cli = None
 
 try:
 
-	cli = VehicleClient()
+	cli = CarambotClient()
 	cli.run()
 
 except Exception as e:

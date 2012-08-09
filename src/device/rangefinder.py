@@ -15,6 +15,6 @@ class RangeFinder:
 	
 		self.us.pinMode(self.pin, uSherpa.PULLDOWN)	
 
-	def range(self):
+	def currentRange(self):
 		return self.us.pulselengthRead(self.pin, True); 		
 

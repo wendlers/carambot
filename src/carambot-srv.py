@@ -13,11 +13,10 @@ from usherpa.serialcomm import *
 
 SERVER_PORT = 50007
 
-class VehicleServer(UdpServer):
+class CarambotServer(UdpServer):
 
 	vehicle = None
-	pan		= None
-	rf		= None
+	panrf	= None
 	ps 		= None
 	
 	def __init__(self, bindTo = "", port = SERVER_PORT):
@@ -37,9 +36,10 @@ class VehicleServer(UdpServer):
 		mctl = DualChannelMCtl(mch1, mch2)
 		self.vehicle  = Vehicle(mctl)
 
-		self.pan = Servo(us, uSherpa.PIN_2_2)
-
-		self.rf = RangeFinder(us, uSherpa.PIN_2_0)
+		pan = Servo(us, uSherpa.PIN_2_2)
+		rf  = RangeFinder(us, uSherpa.PIN_2_0)
+		self.panrf = PanRf(pan, rf)
+		
 
 	def end(self):
 		self.ps.stop()
@@ -77,14 +77,10 @@ class VehicleServer(UdpServer):
 			elif c == "pan":
 
 				d = data["pos"]
-				self.pan.goTo(d)
+				r = self.panrf.rangeAt(d)
 				print " -> set pan to pos", d
-
-			elif c == "rf":
-
-				r = self.rf.range()
 				print " -> range finder range:", r
-				res = { "msgId" : "range", "msg" : `r` }
+				res = { "msgId" : "range", "msg" : `r` + "@" + `d` }
 
 			self.respond(clientIp,clientPort, seq, res)
 
@@ -94,7 +90,7 @@ class VehicleServer(UdpServer):
 			self.respond(clientIp,clientPort, seq, res)
 
 try:
-	srv = VehicleServer()
+	srv = CarambotServer()
 	srv.run()
 	srv.end()
 except Exception as e:

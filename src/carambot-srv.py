@@ -7,6 +7,7 @@ from device.servo  import Servo
 from device.rangefinder import RangeFinder 
 
 from robot.vehicle import Vehicle
+from robot.panrf import PanRf 
 
 from usherpa.api import *                    
 from usherpa.serialcomm import *
@@ -82,7 +83,7 @@ class CarambotServer(UdpServer):
 				print " -> range finder range:", r
 				res = { "msgId" : "range", "msg" : `r` + "@" + `d` }
 
-			elif c = "scan":
+			elif c == "scan":
 
 				a = self.panrf.scanArea()
 				print " -> scan area:", a

@@ -10,7 +10,7 @@ CLIENT_PORT = 50008
 SERVER_IP   = "127.0.0.1"
 #SERVER_IP   = "172.16.100.25"
 SERVER_PORT = 50007
-SEND_TIMEOUT= 1
+SEND_TIMEOUT= 5
 
 class CarambotClient(UdpClient, CursesScreen):
 

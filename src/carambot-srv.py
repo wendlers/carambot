@@ -82,6 +82,12 @@ class CarambotServer(UdpServer):
 				print " -> range finder range:", r
 				res = { "msgId" : "range", "msg" : `r` + "@" + `d` }
 
+			elif c = "scan":
+
+				a = self.panrf.scanArea()
+				print " -> scan area:", a
+				res = { "msgId" : "scan", "msg" : `a` }
+
 			self.respond(clientIp,clientPort, seq, res)
 
 		except Exception as e:

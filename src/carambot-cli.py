@@ -109,6 +109,9 @@ class CarambotClient(UdpClient, CursesScreen):
 			elif c == ord('g'): 
 				self.getScreen().addstr("PAN-180-DEG", self.YELLOW)	
 				req = { "msgId" : "pan", "pos" : 180 }
+			elif c == ord('S'): 
+				self.getScreen().addstr("SCAN-AREA", self.YELLOW)	
+				req = { "msgId" : "scan" }
 			elif c == ord('q'): 
 				break  # Exit the while()
 			else:

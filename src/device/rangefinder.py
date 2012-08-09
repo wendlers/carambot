@@ -1,5 +1,5 @@
 """
- Drive Range Finder 
+ Device Range Finder 
 """
 
 from usherpa.api import * 
@@ -13,7 +13,7 @@ class RangeFinder:
 		self.us  = us
 		self.pin = pin
 	
-		self.us.pinMode(self.pin, uSherpa.PULLDOWN)	
+		self.us.pinMode(self.pin, uSherpa.INPUT)	
 
 	def currentRange(self):
 		return self.us.pulselengthRead(self.pin, True); 		

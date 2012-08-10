@@ -6,26 +6,35 @@ from usherpa.api import *
 
 class Trigger:
 
-	us   	= None
-	pin  	= None 
-	handler = None
+	us   	 = None
+	handlers = [] 
 
-	def __init__(self, us, pin, handler): 
-		self.us  	 = us
-		self.pin 	 = pin
-		self.handler = handler
-	
-		self.us.pinMode(self.pin, uSherpa.INPUT)	
+	def __init__(self, us): 
+
+		self.us = us
+		self.us.ps.evHandler = self.__handleTrigger 
 
 	def __handleTrigger(self, msg, packet):
-		self.disableTrigger()
-		self.handler()
 
-	def enableTrigger(self, triggerCount):
-		self.us.ps.evHandler = self.__handleTrigger 
-		self.us.externalInterrupt(self.pin, uSherpa.EDGE_LOWHIGH, triggerCount)
+		print "received trigger:", msg, ":", packet
 
-	def disableTrigger(self):
-		self.us.ps.evHandler = None
-		self.us.externalInterrupt(self.pin, uSherpa.EDGE_NONE)
+		handler = self.remove(packet.data[0])
 
+		if not handler == None:
+			handler()
+
+	def add(self, pin, edge, handler, triggerCount):
+
+		self.handlers.setdefault(pin, None) = handler
+		self.us.externalInterrupt(pin, edge, triggerCount)
+
+	def remove(self, pin):
+
+		handler = None
+
+		if self.handlers.has_key(pin):
+			self.us.externalInterrupt(pin, uSherpa.EDGE_NONE)
+			handler = self.handlers[pin] 
+			del self.handlers[pin] 
+
+		return handler

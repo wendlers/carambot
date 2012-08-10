@@ -9,28 +9,11 @@ from usherpa.api import *
 from usherpa.serialcomm import *
 
 from device.dcmctl import MCtlChannel, DualChannelMCtl
-from device.trigger import Trigger
-from robot.vehicle import Vehicle
+from robot.vehicle import AdvancedVehicle
 
 # Searial Packet stream instance
 ps = None
 us = None
-
-exti = 2
-
-def exti_1():
-	''' Callback handler for external interrupts received from uSherpa ''' 
- 
-	print "Received external interrupt 1"
-
-	exti = exti - 1
-
-def exti_2():
-	''' Callback handler for external interrupts received from uSherpa ''' 
- 
-	print "Received external interrupt 1"
-
-	exti = exti - 1
 
 try:
 
@@ -42,25 +25,23 @@ try:
 	us = uSherpa(ps)
 
 	us.pinMode(uSherpa.PIN_2_3, uSherpa.INPUT)
-	us.pinMode(uSherpa.PIN_2_4, uSherpa.INPUT)
-
-	trigger = Trigger(us)
-	trigger.add(uSherpa.PIN_2_3, uSherpa.EDGE_HIGHLOW, exti_1, 10)
-	trigger.add(uSherpa.PIN_2_4, uSherpa.EDGE_HIGHLOW, exti_2, 10)
 
 	mch1 = MCtlChannel(us, uSherpa.PIN_1_4, uSherpa.PIN_1_5)
 	mch2 = MCtlChannel(us, uSherpa.PIN_1_6, uSherpa.PIN_1_7)
 	mctl = DualChannelMCtl(mch1, mch2)
-	vehicle  = Vehicle(mctl)
+	vehicle  = AdvancedVehicle(mctl, uSherpa.PIN_2_3, uSherpa.EDGE_HIGHLOW)
 
-	vehicle.fw()
-	
-	while not exti == 0:
-		time.sleep(0.1)
+	print "fw 20"
+	vehicle.fw(20)
 
-	vehicle.br()
+	print "bw 20"
+	vehicle.bw(20)
 
-	print "All triggers received"
+	print "li 20"
+	vehicle.li(20)
+
+	print "ri 20"
+	vehicle.ri(20)
 
 	# reset MCU 
   	print "RESET: "  

@@ -4,7 +4,7 @@ Range finder with pan unit
 
 import time
 
-from device.servo  import Servo 
+from device.servo import Servo 
 from device.rangefinder import RangeFinder 
 
 class PanRf:
@@ -57,10 +57,14 @@ class PanRf:
 
 		return ranges
 
-
 	def rangeAt(self, position):
 		self.pan.goTo(position)
 
+		# The servo needs some time to move to the targeted position.
+		# The bigger the delta between the current position and
+		# the desired position, the longer we need to wait until
+		# we start measuring the reange. If range is requested to
+		# early, it will not stabilize since servo is still moving. 
 		d = float(abs(self.pos - position)) / 180.0
 		time.sleep(d)
 		self.pos = position

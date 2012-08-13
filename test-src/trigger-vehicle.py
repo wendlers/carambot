@@ -9,6 +9,7 @@ from usherpa.api import *
 from usherpa.serialcomm import *
 
 from device.dcmctl import MCtlChannel, DualChannelMCtl
+from device.trigger import Trigger 
 from robot.vehicle import AdvancedVehicle
 
 # Searial Packet stream instance
@@ -29,7 +30,10 @@ try:
 	mch1 = MCtlChannel(us, uSherpa.PIN_1_4, uSherpa.PIN_1_5)
 	mch2 = MCtlChannel(us, uSherpa.PIN_1_6, uSherpa.PIN_1_7)
 	mctl = DualChannelMCtl(mch1, mch2)
-	vehicle  = AdvancedVehicle(mctl, uSherpa.PIN_2_3, uSherpa.EDGE_HIGHLOW)
+
+	tr = Trigger(us)
+
+	vehicle  = AdvancedVehicle(mctl, tr, uSherpa.PIN_2_3, uSherpa.EDGE_HIGHLOW)
 
 	print "fw 20"
 	vehicle.fw(20)
@@ -37,8 +41,8 @@ try:
 	print "bw 20"
 	vehicle.bw(20)
 
-	print "li 20"
-	vehicle.li(20)
+	print "le 20"
+	vehicle.le(20)
 
 	print "ri 20"
 	vehicle.ri(20)

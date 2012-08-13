@@ -7,8 +7,8 @@ from util.udp import UdpClient, UdpCommException
 
 CLIENT_PORT = 50008
 
-SERVER_IP   = "127.0.0.1"
-#SERVER_IP   = "172.16.100.25"
+#SERVER_IP   = "127.0.0.1"
+SERVER_IP   = "172.16.100.25"
 SERVER_PORT = 50007
 SEND_TIMEOUT= 5
 
@@ -94,19 +94,19 @@ class CarambotClient(UdpClient, CursesScreen):
 			elif c == ord(' '): 
 				self.getScreen().addstr("BREAK", self.YELLOW)	
 				req = { "msgId" : "mv", "dir" : "br" }
-			elif c == ord('a'): 
+			elif c == ord('g'): 
 				self.getScreen().addstr("PAN-0-DEG", self.YELLOW)	
 				req = { "msgId" : "pan", "pos" : 0 }
-			elif c == ord('s'): 
+			elif c == ord('f'): 
 				self.getScreen().addstr("PAN-45-DEG", self.YELLOW)	
 				req = { "msgId" : "pan", "pos" : 45 }
 			elif c == ord('d'): 
 				self.getScreen().addstr("PAN-90-DEG", self.YELLOW)	
 				req = { "msgId" : "pan", "pos" : 90 }
-			elif c == ord('f'): 
+			elif c == ord('s'): 
 				self.getScreen().addstr("PAN-135-DEG", self.YELLOW)	
 				req = { "msgId" : "pan", "pos" : 135 }
-			elif c == ord('g'): 
+			elif c == ord('a'): 
 				self.getScreen().addstr("PAN-180-DEG", self.YELLOW)	
 				req = { "msgId" : "pan", "pos" : 180 }
 			elif c == ord('S'): 

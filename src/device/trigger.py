@@ -7,12 +7,12 @@ from usherpa.api import *
 class Trigger:
 
 	us   	 = None
-	handlers = [] 
+	handlers = {} 
 
 	def __init__(self, us): 
 
 		self.us = us
-		self.us.ps.evHandler = self.__handleTrigger 
+		self.us.packetStream.evHandler = self.__handleTrigger 
 
 	def __handleTrigger(self, msg, packet):
 
@@ -25,7 +25,8 @@ class Trigger:
 
 	def add(self, pin, edge, handler, triggerCount):
 
-		self.handlers.setdefault(pin, None) = handler
+		self.handlers.setdefault(pin, None)
+		self.handlers[pin] = handler
 		self.us.externalInterrupt(pin, edge, triggerCount)
 
 	def remove(self, pin):

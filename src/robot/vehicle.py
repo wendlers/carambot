@@ -23,11 +23,11 @@ class Vehicle:
 	def br(self):
 		self.mctl.br(1, 1)
 
-	def ri(self):
+	def le(self):
 		self.mctl.fw(1, 0)
 		self.mctl.bw(0, 1)
 
-	def le(self):
+	def ri(self):
 		self.mctl.bw(1, 0)
 		self.mctl.fw(0, 1)	
 
@@ -37,48 +37,48 @@ class AdvancedVehicle(Vehicle):
 	triggerPin 	= None
 	triggerActive = False
 
-	def __init__(self, dChMCtl, triggerPin, triggerEdge):
+	def __init__(self, dChMCtl, trigger, triggerPin, triggerEdge):
 		Vehicle.__init__(self,dChMCtl)
 
-		self.trigger 	 = Trigger(self.mctl.us) 
-		sefl.triggerPin  = triggerPin
-		sefl.triggerEdge = triggerEdge
+		self.trigger 	 = trigger 
+		self.triggerPin  = triggerPin
+		self.triggerEdge = triggerEdge
 
-	def __triggerHandler():
+	def __triggerHandler(self):
 		self.br()		
 		self.triggerActive = False
 
-	def __waitForTrigger(sefl, waitForTrigger):
+	def __waitForTrigger(self, waitForTrigger):
 		while waitForTrigger and self.triggerActive:
 			time.sleep(0.1)	
 
 	def br(self):
 		Vehicle.br(self)
-		sefl.trigger.remove(self.triggerPin)
+		self.trigger.remove(self.triggerPin)
 		self.triggerActive = False
 		
 	def fw(self, count, waitForTrigger = True):
 		self.triggerActive = True 
 		self.trigger.add(self.triggerPin, self.triggerEdge, self.__triggerHandler, count)
-		self.fw()
+		Vehicle.fw(self)
 		self.__waitForTrigger(waitForTrigger)
 
-	def bw(self, count):
+	def bw(self, count, waitForTrigger = True):
 		self.triggerActive = True 
 		self.trigger.add(self.triggerPin, self.triggerEdge, self.__triggerHandler, count)
-		self.bw()
+		Vehicle.bw(self)
 		self.__waitForTrigger(waitForTrigger)
 
-	def ri(self, count):
+	def ri(self, count, waitForTrigger = True):
 		self.triggerActive = True 
 		self.trigger.add(self.triggerPin, self.triggerEdge, self.__triggerHandler, count)
-		self.ri()
+		Vehicle.ri(self)
 		self.__waitForTrigger(waitForTrigger)
 
-	def le(self, count):
+	def le(self, count, waitForTrigger = True):
 		self.triggerActive = True 
 		self.trigger.add(self.triggerPin, self.triggerEdge, self.__triggerHandler, count)
-		self.le()
+		Vehicle.le(self)
 		self.__waitForTrigger(waitForTrigger)
 
 

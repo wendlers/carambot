@@ -24,21 +24,22 @@ class Trigger:
 
 		self.handlerSetup	= {}  
 		self.activeHandlers = {}  
-		self.handlerdLock 	= Lock()
+		self.handlerLock 	= Lock()
 
 	def __handleTrigger(self, msg, packet):
 
-		self.handlerLock.acquire()
-
 		print "received trigger:", msg, ":", packet
 
+		self.handlerLock.acquire()
+
 		try:
+
 			# get handler for that pin and deactivate it
 			handler = self.deactivate(packet.data[0])
 
 			# if handler was found, process it asynchroniously
 			if not handler == None:
-				start_new_thread(handler, (msg, pin))
+				start_new_thread(handler, (msg, packet.data[0]))
 
 		except Exception as e:
 			# TODO: throw own exception ... (?)

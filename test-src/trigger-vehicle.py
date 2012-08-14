@@ -20,11 +20,12 @@ try:
 
 	print "uSherpaExternal Interrupt"
 
-	ps = SerialPacketStream("/dev/ttyS0")
-	# ps = SerialPacketStream("/dev/ttyUSB0")
+	# ps = SerialPacketStream("/dev/ttyS0")
+	ps = SerialPacketStream("/dev/ttyUSB0")
 	ps.start()
 
 	us = uSherpa(ps)
+	us.retrys = 3
 
 	# build dual-channel motor controller
 	mch1 = MCtlChannel(us, uSherpa.PIN_1_4, uSherpa.PIN_1_5)
@@ -33,21 +34,24 @@ try:
 
 	# define trigger for wheel encoders
 	tr = Trigger(us)
-	tr.add(uSherpa.PIN_2_3, uSherpa.EDGE_HIGHLOW)
+	tr.add(uSherpa.PIN_2_3, uSherpa.EDGE_LOWHIGH)
+	# tr.add(uSherpa.PIN_2_4, uSherpa.EDGE_LOWHIGH)
 
 	vehicle  = AdvancedVehicle(mctl, tr)
 
-	print "fw 20"
-	vehicle.fw(20)
+	c = 20
 
-	print "bw 20"
-	vehicle.bw(20)
+	print "fw"
+	vehicle.fw(c)
 
-	print "le 20"
-	vehicle.le(20)
+	print "bw"
+	vehicle.bw(c)
 
-	print "ri 20"
-	vehicle.ri(20)
+	print "le"
+	vehicle.le(c)
+
+	print "ri"
+	vehicle.ri(c)
 
 	# reset MCU 
   	print "RESET: "  

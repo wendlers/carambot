@@ -23,28 +23,27 @@ def exti_1(msg, pin):
  
 	print "Received external interrupt 1"
 
+	global exti
 	exti = exti - 1
 
 def exti_2(msg, pin):
 	''' Callback handler for external interrupts received from uSherpa ''' 
  
-	print "Received external interrupt 1"
+	print "Received external interrupt 2"
 
+	global exti
 	exti = exti - 1
 
 try:
 
 	print "uSherpaExternal Interrupt"
 
-	# ps = SerialPacketStream("/dev/ttyUSB0")
-	ps = SerialPacketStream("/dev/ttyS0")
+	ps = SerialPacketStream("/dev/ttyUSB0")
+	# ps = SerialPacketStream("/dev/ttyS0")
 	ps.start()
 
 	us = uSherpa(ps)
 	us.retrys = 3
-
-	us.pinMode(uSherpa.PIN_2_3, uSherpa.INPUT)
-	us.pinMode(uSherpa.PIN_2_4, uSherpa.INPUT)
 
 	trigger = Trigger(us)
 	trigger.add(uSherpa.PIN_2_3, uSherpa.EDGE_HIGHLOW)

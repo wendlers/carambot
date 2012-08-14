@@ -33,48 +33,56 @@ class Vehicle:
 
 class AdvancedVehicle(Vehicle):
 
-	trigger 	= None
+	trigger 		= None
+	triggersActive 	= 0
 
 	def __init__(self, dChMCtl, trigger):
 		Vehicle.__init__(self,dChMCtl)
-
 		self.trigger 	 = trigger 
 
 	def __triggerHandler(self, msg, pin):
-		self.br()		
-		self.triggerActive = False
+		try:
+			self.br()
+			self.triggersActive = False 
+		except Exception as e:
+			print e
 
-	def __waitForTrigger(self, waitForTrigger):
+	def __waitForTriggers(self, waitForTrigger):
 		# FIXME: ugly polling - use condition?
-		while waitForTrigger and self.triggerActive:
-			time.sleep(0.1)	
+		while self.triggersActive:
+			time.sleep(0.1)
+
+	def __activateTriggers(self, count):
+
+		for pin in self.trigger.handlerSetup:
+			self.trigger.activate(pin, self.__triggerHandler, count)
+
+		self.triggersActive = True 
+
+	def __deactivateTriggers(self):
+		self.triggersActive = False 
 
 	def br(self):
 		Vehicle.br(self)
-		self.trigger.deactivate(self.triggerPin)
-		self.triggerActive = False
-		
+		self.__deactivateTriggers()
+
 	def fw(self, count, waitForTrigger = True):
-		self.triggerActive = True 
-		self.trigger.activate(self.triggerPin, self.__triggerHandler, count)
+		self.__activateTriggers(count)
 		Vehicle.fw(self)
-		self.__waitForTrigger(waitForTrigger)
+		self.__waitForTriggers(waitForTrigger)
 
 	def bw(self, count, waitForTrigger = True):
-		self.triggerActive = True 
-		self.trigger.activate(self.triggerPin, self.__triggerHandler, count)
+		self.__activateTriggers(count)
 		Vehicle.bw(self)
-		self.__waitForTrigger(waitForTrigger)
+		self.__waitForTriggers(waitForTrigger)
 
 	def ri(self, count, waitForTrigger = True):
-		self.triggerActive = True 
-		self.trigger.activate(self.triggerPin, self.__triggerHandler, count)
+		self.__activateTriggers(count)
 		Vehicle.ri(self)
-		self.__waitForTrigger(waitForTrigger)
+		self.__waitForTriggers(waitForTrigger)
 
 	def le(self, count, waitForTrigger = True):
-		self.triggerActive = True 
-		self.trigger.activate(self.triggerPin, self.__triggerHandler, count)
+		self.__activateTriggers(count)
 		Vehicle.le(self)
-		self.__waitForTrigger(waitForTrigger)
+		self.__waitForTriggers(waitForTrigger)
 

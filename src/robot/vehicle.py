@@ -34,51 +34,47 @@ class Vehicle:
 class AdvancedVehicle(Vehicle):
 
 	trigger 	= None
-	triggerPin 	= None
-	triggerActive = False
 
-	def __init__(self, dChMCtl, trigger, triggerPin, triggerEdge):
+	def __init__(self, dChMCtl, trigger):
 		Vehicle.__init__(self,dChMCtl)
 
 		self.trigger 	 = trigger 
-		self.triggerPin  = triggerPin
-		self.triggerEdge = triggerEdge
 
-	def __triggerHandler(self):
+	def __triggerHandler(self, msg, pin):
 		self.br()		
 		self.triggerActive = False
 
 	def __waitForTrigger(self, waitForTrigger):
+		# FIXME: ugly polling - use condition?
 		while waitForTrigger and self.triggerActive:
 			time.sleep(0.1)	
 
 	def br(self):
 		Vehicle.br(self)
-		self.trigger.remove(self.triggerPin)
+		self.trigger.deactivate(self.triggerPin)
 		self.triggerActive = False
 		
 	def fw(self, count, waitForTrigger = True):
 		self.triggerActive = True 
-		self.trigger.add(self.triggerPin, self.triggerEdge, self.__triggerHandler, count)
+		self.trigger.activate(self.triggerPin, self.__triggerHandler, count)
 		Vehicle.fw(self)
 		self.__waitForTrigger(waitForTrigger)
 
 	def bw(self, count, waitForTrigger = True):
 		self.triggerActive = True 
-		self.trigger.add(self.triggerPin, self.triggerEdge, self.__triggerHandler, count)
+		self.trigger.activate(self.triggerPin, self.__triggerHandler, count)
 		Vehicle.bw(self)
 		self.__waitForTrigger(waitForTrigger)
 
 	def ri(self, count, waitForTrigger = True):
 		self.triggerActive = True 
-		self.trigger.add(self.triggerPin, self.triggerEdge, self.__triggerHandler, count)
+		self.trigger.activate(self.triggerPin, self.__triggerHandler, count)
 		Vehicle.ri(self)
 		self.__waitForTrigger(waitForTrigger)
 
 	def le(self, count, waitForTrigger = True):
 		self.triggerActive = True 
-		self.trigger.add(self.triggerPin, self.triggerEdge, self.__triggerHandler, count)
+		self.trigger.activate(self.triggerPin, self.__triggerHandler, count)
 		Vehicle.le(self)
 		self.__waitForTrigger(waitForTrigger)
-
 

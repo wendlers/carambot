@@ -20,20 +20,22 @@ try:
 
 	print "uSherpaExternal Interrupt"
 
-	ps = SerialPacketStream("/dev/ttyUSB0")
+	ps = SerialPacketStream("/dev/ttyS0")
+	# ps = SerialPacketStream("/dev/ttyUSB0")
 	ps.start()
 
 	us = uSherpa(ps)
 
-	us.pinMode(uSherpa.PIN_2_3, uSherpa.INPUT)
-
+	# build dual-channel motor controller
 	mch1 = MCtlChannel(us, uSherpa.PIN_1_4, uSherpa.PIN_1_5)
 	mch2 = MCtlChannel(us, uSherpa.PIN_1_6, uSherpa.PIN_1_7)
 	mctl = DualChannelMCtl(mch1, mch2)
 
+	# define trigger for wheel encoders
 	tr = Trigger(us)
+	tr.add(uSherpa.PIN_2_3, uSherpa.EDGE_HIGHLOW)
 
-	vehicle  = AdvancedVehicle(mctl, tr, uSherpa.PIN_2_3, uSherpa.EDGE_HIGHLOW)
+	vehicle  = AdvancedVehicle(mctl, tr)
 
 	print "fw 20"
 	vehicle.fw(20)

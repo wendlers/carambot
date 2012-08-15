@@ -24,9 +24,9 @@ This file is part of the carambot-usherpa project.
 from usherpa.api import * 
 
 class MCtlChannel:
-'''
-Single channel of a dual channel motor controller.
-'''
+	'''
+	Single channel of a dual channel motor controller.
+	'''
 
 	us   = None
 	pin1 = None 
@@ -54,9 +54,9 @@ Single channel of a dual channel motor controller.
 
 
 class DualChannelMCtl:
-'''
-Dual channel motor controller to operate two motors indipendently.
-'''
+	'''
+	Dual channel motor controller to operate two motors indipendently.
+	'''
 
 	ch1 = None 
 	ch2 = None 

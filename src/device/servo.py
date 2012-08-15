@@ -24,10 +24,10 @@ This file is part of the carambot-usherpa project.
 from usherpa.api import * 
 
 class Servo:
-'''
-Class representing a servo connected to one of the uSherpas HW PWM ports. 
-The class allows you to position the servo in degrees (from 0 to 180).
-'''
+	'''
+	Class representing a servo connected to one of the uSherpas HW PWM ports. 
+	The class allows you to position the servo in degrees (from 0 to 180).
+	'''
 
 	us  = None
 	pin = None 

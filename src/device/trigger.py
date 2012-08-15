@@ -58,7 +58,8 @@ class Trigger:
 
 			# if handler was found, process it asynchroniously
 			if not handler == None:
-				start_new_thread(handler, (msg, packet.data[0]))
+				# start_new_thread(handler, (msg, packet.data[0]))
+				handler(msg, packet.data[0])
 
 		except Exception as e:
 			# TODO: throw own exception ... (?)
@@ -100,7 +101,7 @@ class Trigger:
 
 		if self.activeHandlers.has_key(pin):
 			
-			self.us.externalInterrupt(pin, uSherpa.EDGE_NONE)
+			# self.us.externalInterrupt(pin, uSherpa.EDGE_NONE)
 			handler = self.activeHandlers[pin] 
 			del self.activeHandlers[pin]
 

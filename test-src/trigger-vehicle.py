@@ -4,6 +4,7 @@ Test Triggers
 
 import traceback
 import time
+import threading
 
 from usherpa.api import *
 from usherpa.serialcomm import *
@@ -35,7 +36,7 @@ try:
 	# define trigger for wheel encoders
 	tr = Trigger(us)
 	tr.add(uSherpa.PIN_2_3, uSherpa.EDGE_LOWHIGH)
-	# tr.add(uSherpa.PIN_2_4, uSherpa.EDGE_LOWHIGH)
+	tr.add(uSherpa.PIN_2_4, uSherpa.EDGE_LOWHIGH)
 
 	vehicle  = AdvancedVehicle(mctl, tr)
 
@@ -53,14 +54,16 @@ try:
 	print "ri"
 	vehicle.ri(c)
 
-	# reset MCU 
-  	print "RESET: "  
-	us.reset()
-	print "-> OK"
-
 except Exception as e:
 	print traceback.format_exc()
 
 finally:
 	if not ps == None:
 		ps.stop()	
+
+#	for t in threading.enumerate():
+#		if not t.name == "MainThread":
+#			 t.join()
+	
+
+print "DONE"

@@ -61,14 +61,18 @@ class AdvancedVehicle(Vehicle):
 
 	def __triggerHandler(self, msg, pin):
 		try:
-			self.br()
-			self.triggersActive = False 
+			if self.triggersActive - 1 == 0:
+				self.br()
+
+			self.triggersActive = self.triggersActive - 1 
+
 		except Exception as e:
 			print e
 
 	def __waitForTriggers(self, waitForTrigger):
 		# FIXME: ugly polling - use condition?
-		while self.triggersActive:
+		while self.triggersActive > 0:
+			print "trigger wait"
 			time.sleep(0.1)
 
 	def __activateTriggers(self, count):
@@ -76,14 +80,14 @@ class AdvancedVehicle(Vehicle):
 		for pin in self.trigger.handlerSetup:
 			self.trigger.activate(pin, self.__triggerHandler, count)
 
-		self.triggersActive = True 
+		self.triggersActive = len(self.trigger.handlerSetup) 
 
 	def __deactivateTriggers(self):
-		self.triggersActive = False 
 
-	def br(self):
-		Vehicle.br(self)
-		self.__deactivateTriggers()
+		for pin in self.trigger.handlerSetup:
+			self.trigger.deactivate(pin)
+
+		self.triggersActive = 0 
 
 	def fw(self, count, waitForTrigger = True):
 		self.__activateTriggers(count)

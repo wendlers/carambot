@@ -28,16 +28,16 @@ from util.udp import UdpClient, UdpCommException
 
 CLIENT_PORT = 50008
 
-#SERVER_IP   = "127.0.0.1"
+# SERVER_IP   = "127.0.0.1"
 SERVER_IP   = "172.16.100.25"
 SERVER_PORT = 50007
 SEND_TIMEOUT= 5
 
 class CarambotClient(UdpClient, CursesScreen):
-'''
-Carambot client class. Connects to a CarambotServer instance through UDP 
-port defined by CLIENT_PORT or specified at instance creation.
-'''
+	'''
+	Carambot client class. Connects to a CarambotServer instance through UDP 
+	port defined by CLIENT_PORT or specified at instance creation.
+	'''
  
 	GREEN 	= None
 	RED		= None

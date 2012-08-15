@@ -36,10 +36,10 @@ from usherpa.serialcomm import *
 SERVER_PORT = 50007
 
 class CarambotServer(UdpServer):
-'''
-Carambot server class running on the Carambola. It listens on UPD port
-defined by SERVER_PORT. 
-'''
+	'''
+	Carambot server class running on the Carambola. It listens on UPD port
+	defined by SERVER_PORT. 
+	'''
  
 	vehicle = None
 	panrf	= None

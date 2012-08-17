@@ -20,6 +20,7 @@
 '''
 This file is part of the carambot-usherpa project.
 '''
+import sys
 import traceback
 
 from optparse import OptionParser
@@ -44,6 +45,7 @@ try:
 
 	if options.server == None:
 		print "Missing argument: -s/--server"
+		sys.exit(1)
 
 	cli		= RobotClient(options.clientport, options.server, options.port)
 	cli.run()

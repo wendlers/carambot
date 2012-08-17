@@ -46,8 +46,7 @@ class RobotClient(UdpClient, CursesScreen):
 	serverPort = None
 	server = None
 
-	def __init__(self, clientPort = CLIENT_PORT, serverPort = SERVER_PORT,
-		server = SERVER):
+	def __init__(self, clientPort = CLIENT_PORT, server = SERVER, serverPort = SERVER_PORT):
 
 		self.serverPort = serverPort
 		self.server 	= server

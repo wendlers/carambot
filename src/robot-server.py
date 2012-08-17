@@ -29,6 +29,8 @@ from optparse import OptionParser
 from rob.carambot 	import Robot
 from rob.server 	import RobotServer
 
+srv = None
+
 try:
 	parser = OptionParser() 
 
@@ -53,3 +55,6 @@ try:
 
 except Exception as e:
 	print traceback.format_exc()
+finally:
+	if not srv == None:
+		srv.end()

@@ -22,8 +22,8 @@ try:
 
 	print "uSherpa and Carambot rocking the wheels!"
 
-	# ps = SerialPacketStream("/dev/ttyS0")
-	ps = SerialPacketStream("/dev/ttyUSB0")
+	ps = SerialPacketStream("/dev/ttyS0")
+	# ps = SerialPacketStream("/dev/ttyUSB0")
 	ps.start()
 
 	us = uSherpa(ps)

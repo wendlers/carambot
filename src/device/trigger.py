@@ -21,6 +21,8 @@
 This file is part of the carambot-usherpa project.
 '''
 
+import logging
+
 from threading 	import Lock
 from thread 	import start_new_thread
 
@@ -47,7 +49,7 @@ class Trigger:
 
 	def __handleTrigger(self, msg, packet):
 
-		print "received trigger:", msg, ":", packet
+		# print "received trigger:", msg, ":", packet
 
 		self.handlerLock.acquire()
 
@@ -62,8 +64,7 @@ class Trigger:
 				handler(msg, packet.data[0])
 
 		except Exception as e:
-			# TODO: throw own exception ... (?)
-			print e
+			logging.error(e)
 		finally:
 			self.handlerLock.release()
 

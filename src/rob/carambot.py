@@ -30,8 +30,10 @@ from device.md132a 	import MCtlChannel
 from device.dcmctl 	import DualChannelMCtl
 from device.servo  	import Servo 
 from device.srf05  	import RangeFinder 
-from device.vehicle import AdvancedVehicle
+# from device.vehicle import AdvancedVehicle
+from device.vehicle import Vehicle
 from device.panrf 	import PanRf 
+from device.trigger	import Trigger 
 
 class Robot:
 	'''
@@ -54,7 +56,10 @@ class Robot:
 		
 		# initialize uSherpa API
 		self.us = uSherpa(self.ps)
-		self.us.retrys = 3
+		self.us.retrys = 5
+
+		# reset robot
+		self.us.reset()
 
 		# construct dual channel motor controller
 		mch1 = MCtlChannel(self.us, uSherpa.PIN_1_4, uSherpa.PIN_1_5)
@@ -62,15 +67,16 @@ class Robot:
 		mctl = DualChannelMCtl(mch1, mch2)
 
 		# construct trigger for handling external interrupts of wheel encoders
-		tr = Trigger(us)
-		tr.add(uSherpa.PIN_2_3, uSherpa.EDGE_LOWHIGH)
-		tr.add(uSherpa.PIN_2_4, uSherpa.EDGE_LOWHIGH)
+		# tr = Trigger(self.us)
+		# tr.add(uSherpa.PIN_2_3, uSherpa.EDGE_LOWHIGH)
+		# tr.add(uSherpa.PIN_2_4, uSherpa.EDGE_LOWHIGH)
 
 		# construct range finder
 		rf  = RangeFinder(self.us, uSherpa.PIN_2_0)
 
 		# assemble vehicle
-		self.vehicle  = AdvancedVehicle(mctl, tr, rf)
+		# self.vehicle  = AdvancedVehicle(mctl, tr, rf)
+		self.vehicle  = Vehicle(mctl)
 
 		# construct pan servo
 		pan = Servo(self.us, uSherpa.PIN_2_2)
@@ -79,7 +85,10 @@ class Robot:
 		self.panrf = PanRf(pan, rf)
 	
 	def __del__(self):
-		logging.info("Desstructing carambot robot instance")
+	
+		self.shutdown()
+
+	def shutdown(self):
 
 		if not self.ps == None:
 			self.ps.stop()

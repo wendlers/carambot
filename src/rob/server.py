@@ -37,9 +37,15 @@ class RobotServer(UdpServer):
 	def __init__(self, robot, port = SERVER_PORT):
 		UdpServer.__init__(self, "", port)
 
-		logging,info("Started RobotServer at port %s" % port)
+		logging.info("Started RobotServer at port %s" % port)
 
 		self.robot = robot
+
+	def __del__(self):
+		self.end()
+
+	def end(self):
+		self.robot.shutdown()
 
 	def dispatch(self, seq, data, clientIp, clientPort):
 		logging.debug("[%s %s]: %i %s" % (clientIp,clientPort, seq, data))

@@ -21,6 +21,7 @@
 This file is part of the carambot-usherpa project.
 '''
 
+import logging
 import time
 
 class Vehicle:
@@ -62,16 +63,18 @@ class AdvancedVehicle(Vehicle):
 		self.rangeFinder = rangeFinder
 
 	def __triggerHandler(self, msg, pin):
-		try:
-			if self.triggersActive - 1 == 0:
+
+		'''
+		if self.triggersActive - 1 == 0:
+			try:
 				Vehicle.br(self)
+			except Exception as e:
+				logging.error(e)
+		'''
+		
+		self.triggersActive = self.triggersActive - 1 
 
-			self.triggersActive = self.triggersActive - 1 
-
-		except Exception as e:
-			print e
-
-	def __waitForTriggers(self, waitForTrigger):
+	def __waitForTriggers(self):
 
 		while self.triggersActive > 0:
 
@@ -79,12 +82,22 @@ class AdvancedVehicle(Vehicle):
 
 			if r < self.minSafetyRange:
 
-				self.br()
-				print "BREAK - range finder detected obstacle at", r
+				logging.info("BREAK - range finder detected obstacle at %i" % r)
+
+				try:
+					self.br()
+				except Exception as e:
+					logging.error(e)
+
 				return False
 
-			time.sleep(0.1)
+			# time.sleep(0.1)
 
+		try:
+			self.br()
+		except Exception as e:
+			logging.error(e)
+			
 		return True
 
 	def __activateTriggers(self, count):
@@ -112,7 +125,7 @@ class AdvancedVehicle(Vehicle):
 		if count > 0:
 			self.__activateTriggers(count)
 			Vehicle.fw(self)
-			return self.__waitForTriggers(waitForTrigger)
+			return self.__waitForTriggers()
 		else:
 			Vehicle.fw(self)
 
@@ -121,7 +134,7 @@ class AdvancedVehicle(Vehicle):
 		if count > 0:
 			self.__activateTriggers(count)
 			Vehicle.bw(self)
-			return self.__waitForTriggers(waitForTrigger)
+			return self.__waitForTriggers()
 		else:
 			Vehicle.bw(self)
 
@@ -130,7 +143,7 @@ class AdvancedVehicle(Vehicle):
 		if count > 0:
 			self.__activateTriggers(count)
 			Vehicle.ri(self)
-			return self.__waitForTriggers(waitForTrigger)
+			return self.__waitForTriggers()
 		else:
 			Vehicle.ri(self)
 
@@ -139,6 +152,6 @@ class AdvancedVehicle(Vehicle):
 		if count > 0:
 			self.__activateTriggers(count)
 			Vehicle.le(self)
-			return self.__waitForTriggers(waitForTrigger)
+			return self.__waitForTriggers()
 		else:
 			Vehicle.le(self)

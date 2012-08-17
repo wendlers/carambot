@@ -23,9 +23,6 @@ This file is part of the carambot-usherpa project.
 
 import time
 
-from device.servo import Servo 
-from device.rangefinder import RangeFinder 
-
 class PanRf:
 
 	pan = None

@@ -27,11 +27,11 @@ from util.cursesscr import CursesScreen
 from util.udp 		import UdpClient, UdpCommException
 
 CLIENT_PORT = 50008
-SERVER_IP   = "127.0.0.1"
+SERVER      = "127.0.0.1"
 SERVER_PORT = 50007
 SEND_TIMEOUT= 5
 
-class CarambotClient(UdpClient, CursesScreen):
+class RobotClient(UdpClient, CursesScreen):
 	'''
 	Carambot client class. Connects to a CarambotServer instance through UDP 
 	port defined by CLIENT_PORT or specified at instance creation.
@@ -172,12 +172,3 @@ class CarambotClient(UdpClient, CursesScreen):
 		self.send(self.server, self.serverPort , data)
 		return self.receive(self.server, self.serverPort, SEND_TIMEOUT)
 
-cli = None
-
-try:
-
-	cli = CarambotClient()
-	cli.run()
-
-except Exception as e:
-	print e

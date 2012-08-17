@@ -23,9 +23,6 @@ This file is part of the carambot-usherpa project.
 
 import time
 
-from device.dcmctl import DualChannelMCtl 
-from device.trigger import Trigger
-
 class Vehicle:
 
 	mctl = None
@@ -54,15 +51,20 @@ class AdvancedVehicle(Vehicle):
 
 	trigger 		= None
 	triggersActive 	= 0
+	rangeFinder		= None
+	minSafetyRange	= 50
 
-	def __init__(self, dChMCtl, trigger):
+	def __init__(self, dChMCtl, trigger, rangeFinder):
+
 		Vehicle.__init__(self,dChMCtl)
+
 		self.trigger 	 = trigger 
+		self.rangeFinder = rangeFinder
 
 	def __triggerHandler(self, msg, pin):
 		try:
 			if self.triggersActive - 1 == 0:
-				self.br()
+				Vehicle.br(self)
 
 			self.triggersActive = self.triggersActive - 1 
 
@@ -70,10 +72,20 @@ class AdvancedVehicle(Vehicle):
 			print e
 
 	def __waitForTriggers(self, waitForTrigger):
-		# FIXME: ugly polling - use condition?
+
 		while self.triggersActive > 0:
-			print "trigger wait"
+
+			r = self.rangeFinder.currentRange()
+
+			if r < self.minSafetyRange:
+
+				self.br()
+				print "BREAK - range finder detected obstacle at", r
+				return False
+
 			time.sleep(0.1)
+
+		return True
 
 	def __activateTriggers(self, count):
 
@@ -84,28 +96,49 @@ class AdvancedVehicle(Vehicle):
 
 	def __deactivateTriggers(self):
 
-		for pin in self.trigger.handlerSetup:
-			self.trigger.deactivate(pin)
+		if self.triggersActive > 0:
+			for pin in self.trigger.handlerSetup:
+				self.trigger.deactivate(pin)
 
-		self.triggersActive = 0 
+			self.triggersActive = 0 
 
-	def fw(self, count, waitForTrigger = True):
-		self.__activateTriggers(count)
-		Vehicle.fw(self)
-		self.__waitForTriggers(waitForTrigger)
+	def br(self):
 
-	def bw(self, count, waitForTrigger = True):
-		self.__activateTriggers(count)
-		Vehicle.bw(self)
-		self.__waitForTriggers(waitForTrigger)
+		Vehicle.br(self)
+		self.__deactivateTriggers()
+		
+	def fw(self, count = 0):
 
-	def ri(self, count, waitForTrigger = True):
-		self.__activateTriggers(count)
-		Vehicle.ri(self)
-		self.__waitForTriggers(waitForTrigger)
+		if count > 0:
+			self.__activateTriggers(count)
+			Vehicle.fw(self)
+			return self.__waitForTriggers(waitForTrigger)
+		else:
+			Vehicle.fw(self)
 
-	def le(self, count, waitForTrigger = True):
-		self.__activateTriggers(count)
-		Vehicle.le(self)
-		self.__waitForTriggers(waitForTrigger)
+	def bw(self, count = 0):
 
+		if count > 0:
+			self.__activateTriggers(count)
+			Vehicle.bw(self)
+			return self.__waitForTriggers(waitForTrigger)
+		else:
+			Vehicle.bw(self)
+
+	def ri(self, count = 0):
+
+		if count > 0:
+			self.__activateTriggers(count)
+			Vehicle.ri(self)
+			return self.__waitForTriggers(waitForTrigger)
+		else:
+			Vehicle.ri(self)
+
+	def le(self, count = 0):
+
+		if count > 0:
+			self.__activateTriggers(count)
+			Vehicle.le(self)
+			return self.__waitForTriggers(waitForTrigger)
+		else:
+			Vehicle.le(self)

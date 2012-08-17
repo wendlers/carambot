@@ -21,8 +21,8 @@
 This file is part of the carambot-usherpa project.
 '''
 
-from threading import Lock
-from thread import start_new_thread
+from threading 	import Lock
+from thread 	import start_new_thread
 
 from usherpa.api import * 
 

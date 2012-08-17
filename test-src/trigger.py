@@ -5,12 +5,12 @@ Test Triggers
 import traceback
 import time
 
-from usherpa.api import *
+from usherpa.api 		import *
 from usherpa.serialcomm import *
 
-from device.dcmctl import MCtlChannel, DualChannelMCtl
+from device.dcmctl 	import MCtlChannel, DualChannelMCtl
 from device.trigger import Trigger
-from robot.vehicle import Vehicle
+from device.vehicle	import Vehicle
 
 # Searial Packet stream instance
 ps = None

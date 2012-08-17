@@ -20,58 +20,29 @@
 '''
 This file is part of the carambot-usherpa project.
 '''
+import logging
 
 from util.udp import UdpServer 
 
-from device.md132a 	import MCtlChannel
-from device.dcmctl 	import DualChannelMCtl
-from device.servo  	import Servo 
-from device.srf05  	import RangeFinder 
-from device.vehicle import Vehicle
-from device.panrf 	import PanRf 
-
-from usherpa.api import *                    
-from usherpa.serialcomm import *
-
 SERVER_PORT = 50007
 
-class CarambotServer(UdpServer):
+class RobotServer(UdpServer):
 	'''
 	Carambot server class running on the Carambola. It listens on UPD port
 	defined by SERVER_PORT. 
 	'''
  
-	vehicle = None
-	panrf	= None
-	ps 		= None
+	robot = None
 	
-	def __init__(self, bindTo = "", port = SERVER_PORT):
-		UdpServer.__init__(self, bindTo, port)
+	def __init__(self, robot, port = SERVER_PORT):
+		UdpServer.__init__(self, "", port)
 
-		# self.ps = SerialPacketStream("/dev/ttyUSB0")
-		self.ps = SerialPacketStream("/dev/ttyS0")
-		self.ps.start()
-		
-		us = uSherpa(self.ps)
-		
-		# set xfer retrys to 3
-		us.retrys = 3
-			
-		mch1 = MCtlChannel(us, uSherpa.PIN_1_4, uSherpa.PIN_1_5)
-		mch2 = MCtlChannel(us, uSherpa.PIN_1_6, uSherpa.PIN_1_7)
-		mctl = DualChannelMCtl(mch1, mch2)
-		self.vehicle  = Vehicle(mctl)
+		logging,info("Started RobotServer at port %s" % port)
 
-		pan = Servo(us, uSherpa.PIN_2_2)
-		rf  = RangeFinder(us, uSherpa.PIN_2_0)
-		self.panrf = PanRf(pan, rf)
-		
+		self.robot = robot
 
-	def end(self):
-		self.ps.stop()
-		
 	def dispatch(self, seq, data, clientIp, clientPort):
-		print "[%s %s]: %i %s" % (clientIp,clientPort, seq, data)
+		logging.debug("[%s %s]: %i %s" % (clientIp,clientPort, seq, data))
 
 		try:
 			res = { "msgId" : "ok" }
@@ -83,35 +54,35 @@ class CarambotServer(UdpServer):
 				d = data["dir"]
 
 				if d == "fw": 
-					print " -> set vehicle to: FORWARD"	
-					self.vehicle.fw()
+					logging.debug("set vehicle to: FORWARD")	
+					self.robot.vehicle.fw()
 				elif d == "bw": 
-					print " -> set vehicle to: BACKWARD"	
-					self.vehicle.bw()
+					logging.debug("set vehicle to: BACKWARD")	
+					self.robot.vehicle.bw()
 				elif d == "le": 
-					print " -> set vehicle to: LEFT"	
-					self.vehicle.le()
+					logging.debug("set vehicle to: LEFT")	
+					self.robot.vehicle.le()
 				elif d == "ri": 
-					print " -> set vehicle to: RIGHT"	
-					self.vehicle.ri()
+					logging.debug("set vehicle to: RIGHT")	
+					self.robot.vehicle.ri()
 				elif d == "br": 
-					print " -> set vehicle to BREAK"	
-					self.vehicle.br()
+					logging.debug("set vehicle to BREAK")	
+					self.robot.vehicle.br()
 				else:
 					res = { "msgId" : "err", "msg" : "Command mv: unknown direction " + d }
 
 			elif c == "pan":
 
 				d = data["pos"]
-				r = self.panrf.rangeAt(d)
-				print " -> set pan to pos", d
-				print " -> range finder range:", r
+				r = self.robot.panrf.rangeAt(d)
+				logging.debug("set pan to pos %i" % d)
+				logging.debug("range finder range: %i" % r)
 				res = { "msgId" : "range", "msg" : `r` + "@" + `d` }
 
 			elif c == "scan":
 
-				a = self.panrf.scanArea()
-				print " -> scan area:", a
+				a = self.robot.panrf.scanArea()
+				logging.debug("scan area: %s" % a)
 				res = { "msgId" : "scan", "msg" : `a` }
 
 			self.respond(clientIp,clientPort, seq, res)
@@ -121,9 +92,3 @@ class CarambotServer(UdpServer):
 			res = { "msgId" : "err", "msg" : "Data format mismatch" }
 			self.respond(clientIp,clientPort, seq, res)
 
-try:
-	srv = CarambotServer()
-	srv.run()
-	srv.end()
-except Exception as e:
-	print e

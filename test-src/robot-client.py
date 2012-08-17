@@ -20,31 +20,38 @@
 '''
 This file is part of the carambot-usherpa project.
 '''
+import traceback
 
-class DualChannelMCtl:
-	'''
-	Dual channel motor controller to operate two motors indipendently.
-	'''
+from optparse import OptionParser
+from rob.client import RobotClient
 
-	ch1 = None 
-	ch2 = None 
+cli = None
 
-	def __init__(self, ch1, ch2):
-		self.ch1 = ch1
-		self.ch2 = ch2
+try:
 
-	def __apply2ch(self, applyCh1, applyCh2, opCh1, opCh2):
-		if applyCh1:
-			opCh1()
-		if applyCh2:
-			opCh2()	
-	
-	def br(self, applyCh1, applyCh2):
-		self.__apply2ch(applyCh1, applyCh2, self.ch1.br, self.ch2.br)
+	parser = OptionParser() 
 
-	def fw(self, applyCh1, applyCh2):
-		self.__apply2ch(applyCh1, applyCh2, self.ch1.fw, self.ch2.fw)
+	parser.add_option("-s", "--server", dest="server", 
+		help="Robot server IP or hostname", metavar="HOST") 
 
-	def bw(self, applyCh1, applyCh2):
-		self.__apply2ch(applyCh1, applyCh2, self.ch1.bw, self.ch2.bw)
+	parser.add_option("-c", "--clientport", dest="clientport", type="int", 
+		help="Robot client port (default 50008)", default=50008, metavar="PORT") 
 
+	parser.add_option("-p", "--port", dest="port", type="int",
+		help="Robot server port (default 50007)", default=50007, metavar="PORT") 
+
+ 	(options, args) = parser.parse_args()
+
+	if options.server == None:
+		print "Missing argument: -s/--server"
+
+	cli		= RobotClient(options.clientport, options.server, options.port)
+	cli.run()
+
+except Exception as e:
+	if not cli == None:
+		del cli
+
+	print traceback.format_exc()
+
+print "DONE"

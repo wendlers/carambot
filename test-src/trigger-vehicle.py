@@ -6,20 +6,21 @@ import traceback
 import time
 import threading
 
-from usherpa.api import *
+from usherpa.api 		import *
 from usherpa.serialcomm import *
 
-from device.dcmctl import MCtlChannel, DualChannelMCtl
-from device.trigger import Trigger 
-from robot.vehicle import AdvancedVehicle
+from device.md132a		import MCtlChannel
+from device.dcmctl 		import DualChannelMCtl
+from device.trigger 	import Trigger 
+from device.srf05 		import RangeFinder 
+from device.vehicle 	import AdvancedVehicle
 
 # Searial Packet stream instance
 ps = None
-us = None
 
 try:
 
-	print "uSherpaExternal Interrupt"
+	print "uSherpa and Carambot rocking the wheels!"
 
 	# ps = SerialPacketStream("/dev/ttyS0")
 	ps = SerialPacketStream("/dev/ttyUSB0")
@@ -38,21 +39,37 @@ try:
 	tr.add(uSherpa.PIN_2_3, uSherpa.EDGE_LOWHIGH)
 	tr.add(uSherpa.PIN_2_4, uSherpa.EDGE_LOWHIGH)
 
-	vehicle  = AdvancedVehicle(mctl, tr)
+	#define range finder
+	rf  = RangeFinder(us, uSherpa.PIN_2_0)
+	
+	# define vehicle
+	vehicle  = AdvancedVehicle(mctl, tr, rf)
 
-	c = 20
+	# stupid navigation loop
+	try:
+		while True:
 
-	print "fw"
-	vehicle.fw(c)
+			# move foreward until obstacle was detected
+			while vehicle.fw(100):
+				pass
+	
+			# go left util range is bigger than saftey distance	
+			t = 10
 
-	print "bw"
-	vehicle.bw(c)
+			while t > 0:
+				vehicle.le(10)
 
-	print "le"
-	vehicle.le(c)
+				if rf.currentRange() > vehicle.minSafetyRange:
+					break
 
-	print "ri"
-	vehicle.ri(c)
+				t = t - 1
+
+			if t == 0:
+				print "I am STUCK! Giving up"
+				break
+
+	except KeyboardInterrupt:
+		vehicle.br()
 
 except Exception as e:
 	print traceback.format_exc()
@@ -60,10 +77,5 @@ except Exception as e:
 finally:
 	if not ps == None:
 		ps.stop()	
-
-#	for t in threading.enumerate():
-#		if not t.name == "MainThread":
-#			 t.join()
-	
 
 print "DONE"

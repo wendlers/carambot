@@ -26,7 +26,7 @@ import curses
 import traceback
 
 from optparse import OptionParser
-from rob.cclient import RobotClient
+from rob.client import RobotClient
 
 cli = None
 
@@ -125,11 +125,12 @@ try:
 		print "Missing argument: -s/--server"
 		sys.exit(1)
 
-	cli		= CarambotClient(options.clientport, options.server, options.port)
+	cli	= CarambotClient(options.clientport, options.server, options.port)
 	cli.run()
+	cli.end()
 
 except Exception as e:
 	if not cli == None:
-		del cli
+		cli.end()	
 
 	print traceback.format_exc()

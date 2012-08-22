@@ -21,8 +21,11 @@
 This file is part of the carambot-usherpa project.
 '''
 
+VERSION="Carambot Server v0.1"
+
 import traceback
 import logging
+import logging.handlers
 
 from optparse import OptionParser
 
@@ -37,6 +40,9 @@ try:
 	parser.add_option("-p", "--port", dest="port", type="int",
 		help="Robot server port (default 50007)", default=50007, metavar="PORT") 
 
+	parser.add_option("-c", "--logclient", dest="logclient",
+		help="Client name/ip for remote logging", metavar="HOST") 
+
 	parser.add_option("-s", "--serialport", dest="serialport", 
 		help="uSherpa serial port (default /dev/ttyS0)", default="/dev/ttyS0", metavar="PORT") 
 
@@ -46,6 +52,14 @@ try:
  	(options, args) = parser.parse_args()
 
 	logging.basicConfig(level=options.verboselevel)
+
+	# add remote log client (if requested)
+	if not options.logclient == None:
+		socketHandler = logging.handlers.SocketHandler(options.logclient, logging.handlers.DEFAULT_TCP_LOGGING_PORT)
+		rootLogger = logging.getLogger()
+		rootLogger.addHandler(socketHandler)
+
+	logging.info(VERSION)
 	logging.info("uSherpa and Carambot rocking the wheels!")
 
 	rob 	= Robot(options.serialport)
@@ -54,7 +68,7 @@ try:
 	srv.run()
 
 except Exception as e:
-	print traceback.format_exc()
+	logging.error(`e` + "::" + e.__str__())
 finally:
 	if not srv == None:
 		srv.end()

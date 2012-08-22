@@ -21,6 +21,3 @@ class CursesScreen:
 		curses.nocbreak()
 		curses.echo()
 		curses.endwin()	
-
-	def getScreen(self):
-		return self.screen

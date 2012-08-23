@@ -45,6 +45,7 @@ class LogRecordStreamHandler(SocketServer.StreamRequestHandler):
 	fmtLevel = logging.Formatter(fmt="%(levelname)s")
 
 	def handle(self):
+
 		while True:
 
 			chunk = self.connection.recv(4)
@@ -52,18 +53,17 @@ class LogRecordStreamHandler(SocketServer.StreamRequestHandler):
 			if len(chunk) < 4:
 				break
 
-			slen = struct.unpack('>L', chunk)[0]
+			slen  = struct.unpack('>L', chunk)[0]
 			chunk = self.connection.recv(slen)
 
 			while len(chunk) < slen:
 				chunk = chunk + self.connection.recv(slen - len(chunk))
 
-			obj = pickle.loads(chunk)
-			record = logging.makeLogRecord(obj)
-
+			record = logging.makeLogRecord(pickle.loads(chunk))
 			self.handleLogRecord(record)
 
 	def handleLogRecord(self, record):
+
 		if not RobotClient.instance == None:
 
 			l = self.fmtLevel.format(record)
@@ -79,14 +79,10 @@ class LogRecordStreamHandler(SocketServer.StreamRequestHandler):
 			RobotClient.instance.addLog(self.fmtFull.format(record), p)
 
 class LogRecordSocketReceiver(SocketServer.ThreadingTCPServer, Thread):
-    """
-    Simple TCP socket-based logging receiver suitable for testing.
-    """
 
     allow_reuse_address = 1
 
-    def __init__(self, host='',
-				 handler=LogRecordStreamHandler,
+    def __init__(self, host='', handler=LogRecordStreamHandler,
                  port=logging.handlers.DEFAULT_TCP_LOGGING_PORT):
 
         SocketServer.ThreadingTCPServer.__init__(self, (host, port), handler)
@@ -96,10 +92,6 @@ class LogRecordSocketReceiver(SocketServer.ThreadingTCPServer, Thread):
         self.logname = None
 
         Thread.__init__(self)
-
-	def end(self):
-		RobotClient.addLog("ending log server")
-		self.abort = True
 
     def run(self):
 
@@ -116,33 +108,34 @@ class RobotClient(UdpClient, CursesScreen):
 	port defined by CLIENT_PORT or specified at instance creation.
 	'''
  
-	instance = None
+	instance 	= None
 
 	serverPort 	= None
 	server 		= None
 
-	maxX = None
-	maxY = None
+	maxX 		= None
+	maxY 		= None
 
-	menuWin  = None
-	cmdWin   = None
-	logWin   = None
-	helpWin  = None
+	menuWin  	= None
+	cmdWin   	= None
+	logWin   	= None
+	helpWin  	= None
 
-	cmdPad = None 	
-	cmdSeq = 0
+	cmdPad 		= None 	
+	cmdSeq 		= 0
 
-	logPad = None
-	logPos = 0
+	logPad 		= None
+	logPos 		= 0
 
-	viewMode = 0
+	logServer 	= None
+
+	viewMode 	= 0
 
 	VIEW_MODE_CMDLOG	=	0
 	VIEW_MODE_CMDONLY	=	1
 	VIEW_MODE_LOGONLY	=	2
 	VIEW_MODE_HELP		=	3
 
-	tcpserver = None
 
 	def __init__(self, clientPort = CLIENT_PORT, server = SERVER, serverPort = SERVER_PORT):
 
@@ -157,8 +150,9 @@ class RobotClient(UdpClient, CursesScreen):
 		CursesScreen.__init__(self)
 		self.initScreen()
 
-		self.tcpserver = LogRecordSocketReceiver()
-		self.tcpserver.start()
+		self.logServer = LogRecordSocketReceiver()
+		self.logServer.daemon = True
+		self.logServer.start()
 
 	def __del__(self):
 
@@ -169,8 +163,8 @@ class RobotClient(UdpClient, CursesScreen):
 
 		try:
 			if self.isAlive():
-				self.tcpserver.abort = True
-				self.tcpserver.join()
+				self.logServer.abort = True
+				self.logServer.join()
 		except:
 			pass
 
@@ -340,55 +334,59 @@ class RobotClient(UdpClient, CursesScreen):
 
 		prevViewMode = self.viewMode
 
-		while True:
+		try:
+			while True:
 
-			self.screen.move(0, 0)
+				self.screen.move(0, 0)
 
-			c = self.screen.getch()
+				c = self.screen.getch()
 
-			if c == curses.KEY_F10: 
-				if self.viewMode == self.VIEW_MODE_HELP:
-					self.viewMode = prevViewMode
+				if c == curses.KEY_F10: 
+					if self.viewMode == self.VIEW_MODE_HELP:
+						self.viewMode = prevViewMode
+						self.initScreen(True)
+					else:
+						break 
+
+				elif c == curses.KEY_F1:
+					if not self.viewMode == self.VIEW_MODE_HELP:
+						prevViewMode = self.viewMode
+						self.viewMode = self.VIEW_MODE_HELP
+						self.initScreen(True)
+
+				elif c == curses.KEY_F2:
+					self.viewMode = (self.viewMode + 1) % 3
 					self.initScreen(True)
-				else:
-					break 
-
-			elif c == curses.KEY_F1:
-				if not self.viewMode == self.VIEW_MODE_HELP:
-					prevViewMode = self.viewMode
-					self.viewMode = self.VIEW_MODE_HELP
-					self.initScreen(True)
-
-			elif c == curses.KEY_F2:
-				self.viewMode = (self.viewMode + 1) % 3
-				self.initScreen(True)
 		
-			elif c == curses.KEY_NPAGE:
-				self.logPos = self.logPos + 5 
+				elif c == curses.KEY_NPAGE:
+					self.logPos = self.logPos + 5 
 
-				if self.logPos >= 500:
-					self.logPos = 495
+					if self.logPos >= 500:
+						self.logPos = 495
 
-				self.showLog()
+					self.showLog()
 
-			elif c == curses.KEY_PPAGE:
-				self.logPos = self.logPos - 5
+				elif c == curses.KEY_PPAGE:
+					self.logPos = self.logPos - 5
 
-				if self.logPos < 0:
-					self.logPos = 0 
+					if self.logPos < 0:
+						self.logPos = 0 
 
-				self.showLog()
+					self.showLog()
 
-			elif c == curses.KEY_RESIZE:
-				self.initScreen(True)
+				elif c == curses.KEY_RESIZE:
+					self.initScreen(True)
 
-			else:
+				else:
 
-				if not self.processRobotCommands(c):
-					self.addCommand("UNKNOWN", "NONE", 4)
+					if not self.processRobotCommands(c):
+						self.addCommand("UNKNOWN", "NONE", 4)
 
-		self.tcpserver.abort = True
-		self.tcpserver.join()
+		except KeyboardInterrupt:
+			pass
+
+		self.logServer.abort = True
+		self.logServer.join(3)
 
 	def xfer(self, data):
 		self.send(self.server, self.serverPort , data)

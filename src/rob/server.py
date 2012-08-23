@@ -35,6 +35,7 @@ class RobotServer(UdpServer):
 	robot = None
 	
 	def __init__(self, robot, port = SERVER_PORT):
+
 		UdpServer.__init__(self, "", port)
 
 		logging.info("Started RobotServer at port %s" % port)
@@ -42,59 +43,30 @@ class RobotServer(UdpServer):
 		self.robot = robot
 
 	def __del__(self):
+
 		self.end()
 
 	def end(self):
+
 		self.robot.shutdown()
 
 	def dispatch(self, seq, data, clientIp, clientPort):
+
 		logging.debug("[%s %s]: %i %s" % (clientIp,clientPort, seq, data))
 
 		try:
-			res = { "msgId" : "ok" }
 
-			c   = data["msgId"]
-
-			if c == "mv":
-
-				d = data["dir"]
-
-				if d == "fw": 
-					logging.debug("set vehicle to: FORWARD")	
-					self.robot.vehicle.fw()
-				elif d == "bw": 
-					logging.debug("set vehicle to: BACKWARD")	
-					self.robot.vehicle.bw()
-				elif d == "le": 
-					logging.debug("set vehicle to: LEFT")	
-					self.robot.vehicle.le()
-				elif d == "ri": 
-					logging.debug("set vehicle to: RIGHT")	
-					self.robot.vehicle.ri()
-				elif d == "br": 
-					logging.debug("set vehicle to BREAK")	
-					self.robot.vehicle.br()
-				else:
-					res = { "msgId" : "err", "msg" : "Command mv: unknown direction " + d }
-
-			elif c == "pan":
-
-				d = data["pos"]
-				r = self.robot.panrf.rangeAt(d)
-				logging.debug("set pan to pos %i" % d)
-				logging.debug("range finder range: %i" % r)
-				res = { "msgId" : "range", "msg" : `r` + "@" + `d` }
-
-			elif c == "scan":
-
-				a = self.robot.panrf.scanArea()
-				logging.debug("scan area: %s" % a)
-				res = { "msgId" : "scan", "msg" : `a` }
-
+			res = self.dispatchRobotCommands(data)
 			self.respond(clientIp,clientPort, seq, res)
 
 		except Exception as e:
-			print e
+
+			logging.error(`e` + "::" + e.__str__())
 			res = { "msgId" : "err", "msg" : "Data format mismatch" }
 			self.respond(clientIp,clientPort, seq, res)
+
+	def dispatchRobotCommands(self, data):
+
+		# implement with specific client class
+		return { "msgId" : "ok" }
 

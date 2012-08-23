@@ -29,10 +29,77 @@ import logging.handlers
 
 from optparse import OptionParser
 
-from rob.carambot 	import Robot
-from rob.server 	import RobotServer
+from rob.carambot 		import Robot
+from rob.server 		import RobotServer
+from rob.simplepilot 	import RobotPilot
 
 srv = None
+
+class CarambotServer(RobotServer):
+
+	pilot = None
+
+	def __init__(self, robot, port):
+		RobotServer.__init__(self, robot, port)
+
+	def dispatchRobotCommands(self, data):
+
+		# if autopilot is running, stop it
+		if not pilot == None:
+
+			logging.debug("Autopilot is running, trying to stop it ...")
+			pilot.abort = True
+			pilot.join()
+			del pilot
+			logging.debug("Autopilot stopped")
+
+		res = { "msgId" : "ok" }
+
+		c   = data["msgId"]
+
+		if c == "mv":
+
+			d = data["dir"]
+
+			if d == "fw": 
+				logging.debug("set vehicle to: FORWARD")	
+				self.robot.vehicle.fw()
+			elif d == "bw": 
+				logging.debug("set vehicle to: BACKWARD")	
+				self.robot.vehicle.bw()
+			elif d == "le": 
+				logging.debug("set vehicle to: LEFT")	
+				self.robot.vehicle.le()
+			elif d == "ri": 
+				logging.debug("set vehicle to: RIGHT")	
+				self.robot.vehicle.ri()
+			elif d == "br": 
+				logging.debug("set vehicle to BREAK")	
+				self.robot.vehicle.br()
+			else:
+				res = { "msgId" : "err", "msg" : "Command mv: unknown direction " + d }
+
+		elif c == "pan":
+
+			d = data["pos"]
+			r = self.robot.panrf.rangeAt(d)
+			logging.debug("set pan to pos %i" % d)
+			logging.debug("range finder range: %i" % r)
+			res = { "msgId" : "range", "msg" : `r` + "@" + `d` }
+
+		elif c == "scan":
+
+			a = self.robot.panrf.scanArea()
+			logging.debug("scan area: %s" % a)
+			res = { "msgId" : "scan", "msg" : `a` }
+
+		elif c == "auto":
+			logging.debug("Starting autupilot thread")
+			pilot = RobotPilot(self.robot)
+			pilot.daemon = True
+			pilot.start()
+
+		return res
 
 try:
 	parser = OptionParser() 
@@ -55,7 +122,8 @@ try:
 
 	# add remote log client (if requested)
 	if not options.logclient == None:
-		socketHandler = logging.handlers.SocketHandler(options.logclient, logging.handlers.DEFAULT_TCP_LOGGING_PORT)
+		socketHandler = logging.handlers.SocketHandler(options.logclient, 
+			logging.handlers.DEFAULT_TCP_LOGGING_PORT)
 		rootLogger = logging.getLogger()
 		rootLogger.addHandler(socketHandler)
 
@@ -63,12 +131,15 @@ try:
 	logging.info("uSherpa and Carambot rocking the wheels!")
 
 	rob 	= Robot(options.serialport)
-	srv		= RobotServer(rob, options.port)
+	srv		= CarambotServer(rob, options.port)
 
 	srv.run()
 
 except Exception as e:
+
 	logging.error(`e` + "::" + e.__str__())
+
 finally:
+
 	if not srv == None:
 		srv.end()

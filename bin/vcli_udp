@@ -1,5 +1,0 @@
-#!/bin/sh
-
-export PYTHONPATH=./lib
-
-python ./src/vcli_udp.py

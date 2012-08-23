@@ -37,12 +37,22 @@ class CarambotClient(RobotClient):
 
 	def displayHelp(self):
 
-		self.helpWin.addstr(2, 2, "Carambot specific commands:")
-		self.helpWin.addstr(4, 2, "LEFT   Move left")
-		self.helpWin.addstr(5, 2, "RIGHT  Move right")
-		self.helpWin.addstr(6, 2, "UP     Move forward")
-		self.helpWin.addstr(7, 2, "DOWN   Move backward")
-		self.helpWin.addstr(8, 2, "SPACE  Break")
+		self.helpWin.addstr( 2,  2, "Carambot specific commands:")
+		self.helpWin.addstr( 4,  2, "LEFT   Move left")
+		self.helpWin.addstr( 5,  2, "RIGHT  Move right")
+		self.helpWin.addstr( 6,  2, "UP     Move forward")
+		self.helpWin.addstr( 7,  2, "DOWN   Move backward")
+		self.helpWin.addstr( 8,  2, "SPACE  Break")
+		self.helpWin.addstr(11,  2, "p      Autopilot (end with any other command)")
+		self.helpWin.addstr( 4, 25, "a Scan @ 180 deg.")
+		self.helpWin.addstr( 5, 25, "s Scan @ 135 deg.")
+		self.helpWin.addstr( 6, 25, "d Scan @  90 deg.")
+		self.helpWin.addstr( 7, 25, "f Scan @  45 deg.")
+		self.helpWin.addstr( 8, 25, "g Scan @   0 deg.")
+		self.helpWin.addstr( 9, 25, "w Scan area (180, 135, 90, 45, 0 deg.)")
+		self.helpWin.addstr(13,  2, "Misc commands:")
+		self.helpWin.addstr(15,  2, "PgUp   Scroll log up by 5 lines")
+		self.helpWin.addstr(16,  2, "PgDwn  Scroll log down by 5 lines")
 
 	def processRobotCommands(self, c):
 
@@ -86,12 +96,15 @@ class CarambotClient(RobotClient):
 				cmd = "PAN-180"	
 				req = { "msgId" : "pan", "pos" : 180 }
 
-			elif c == ord('S'): 
+			elif c == ord('w'): 
 				cmd = "SCAN-AREA"	
 				req = { "msgId" : "scan" }
+
+			elif c == ord('p'): 
+				cmd = "AUTOPILOT"	
+				req = { "msgId" : "auto" }
 	
 			else:
-
 				return False
 
 			if not req == None:
@@ -128,9 +141,14 @@ try:
 	cli	= CarambotClient(options.clientport, options.server, options.port)
 	cli.run()
 	cli.end()
+	exit(0)
 
 except Exception as e:
+	print e 
+
+finally:
+
 	if not cli == None:
 		cli.end()	
 
-	print traceback.format_exc()
+exit(1)

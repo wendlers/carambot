@@ -45,12 +45,12 @@ class CarambotServer(RobotServer):
 	def dispatchRobotCommands(self, data):
 
 		# if autopilot is running, stop it
-		if not pilot == None:
+		if not self.pilot == None:
 
 			logging.debug("Autopilot is running, trying to stop it ...")
-			pilot.abort = True
-			pilot.join()
-			del pilot
+			self.pilot.abort = True
+			self.pilot.join()
+			del self.pilot
 			logging.debug("Autopilot stopped")
 
 		res = { "msgId" : "ok" }
@@ -79,6 +79,31 @@ class CarambotServer(RobotServer):
 			else:
 				res = { "msgId" : "err", "msg" : "Command mv: unknown direction " + d }
 
+		elif c == "tr":
+
+			if data["deg"] == 0:
+				logging.debug("not turning robot")
+			else:
+
+				d = int(data["deg"] / 10 + 0.4)
+
+				if d < 0:
+					logging.debug("turning robot for %i ticks left" % abs(d))
+					self.robot.vehicle.le(abs(d))
+				else:	
+					logging.debug("turning robot for %i ticks right" % d)
+					self.robot.vehicle.ri(d)
+
+		elif c == "fw":
+
+			if data["tic"] == 0:
+				logging.debug("not moving robot")
+			else:
+				logging.debug("moving robot forward %i tics" % data["tic"])
+				f = self.robot.vehicle.fw(data["tic"])	
+
+				res = { "msgId" : "ok", "full" : `f` }
+
 		elif c == "pan":
 
 			d = data["pos"]
@@ -95,9 +120,9 @@ class CarambotServer(RobotServer):
 
 		elif c == "auto":
 			logging.debug("Starting autupilot thread")
-			pilot = RobotPilot(self.robot)
-			pilot.daemon = True
-			pilot.start()
+			self.pilot = RobotPilot(self.robot)
+			self.pilot.daemon = True
+			self.pilot.start()
 
 		return res
 
@@ -130,7 +155,7 @@ try:
 	logging.info(VERSION)
 	logging.info("uSherpa and Carambot rocking the wheels!")
 
-	rob 	= Robot(options.serialport)
+	rob 	= Robot(options.serialport, True)
 	srv		= CarambotServer(rob, options.port)
 
 	srv.run()

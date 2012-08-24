@@ -31,6 +31,9 @@ class RobotPilot(Thread):
 	robot = None
 	abort = False
 
+	# minimum distanced until robot searches new direction ...
+	minr = 150
+
 	def __init__(self, robot):
 		
 		Thread.__init__(self)
@@ -47,13 +50,20 @@ class RobotPilot(Thread):
 
 		self.abort = False
 
+		logging.debug("Autopilot: starting (advanced=%s)" % self.robot.advanced)
+
+		if self.robot.advanced:
+			vehicle.minSafetyRange	= self.minr 
+
 		while not self.abort:
 
 			# (1) move foreward until obstacle was detected
 			logging.info("Autopilot: moving forward until obstacle detected")
+
+				
 			vehicle.fw()
 			
-			while rf.currentRange() > minr and not self.abort:
+			while rf.currentRange() > self.minr and not self.abort:
 				time.sleep(0.1)	
 					
 			vehicle.br()
@@ -91,19 +101,41 @@ class RobotPilot(Thread):
 			if maxp > 90:
 
 				logging.info("Autopilot: turning left for new direction")
-				vehicle.le()
 
-				# calulating time it take approx. to reach max. pos
-				time.sleep(0.01 * ( maxp - 90.0))
+				if self.robot.advanced:
+
+					c = (maxp - 90) / 10
+					logging.debug("Autopilot: start turn left for %i ticks" % c)
+
+					vehicle.le(c)
+
+					logging.debug("Autopilot: end turn left for %i ticks" % c)
+
+				else:
+					vehicle.le()
+
+					# calulating time it take approx. to reach max. pos
+					time.sleep(0.01 * (maxp - 90.0))
 			
 			# and < 90 means found max. space on right
 			else:
 
 				logging.info("Autopilot: turning right for new direction")
-				vehicle.ri()
 
-				# calulating time it take approx. to reach max. pos
-				time.sleep(0.01 * maxp)
+				if self.robot.advanced:
+
+					c = maxp / 10
+					logging.debug("Autopilot: start turn right for %i ticks" % c)
+
+					vehicle.ri(c)
+
+					logging.debug("Autopilot: end turn right for %i ticks" % c)
+
+				else:
+					vehicle.ri()
+
+					# calulating time it take approx. to reach max. pos
+					time.sleep(0.01 * maxp)
 
 			# no go forward, start again at (1)
 

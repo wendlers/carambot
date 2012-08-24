@@ -73,10 +73,15 @@ class AdvancedVehicle(Vehicle):
 		'''
 		
 		self.triggersActive = self.triggersActive - 1 
+		logging.debug("AdvancedVehicle: got trigger for pin %x, triggersActive %i" % (pin, self.triggersActive))
 
-	def __waitForTriggers(self):
+	def __waitForTriggers(self, enableRf = False):
 
 		while self.triggersActive > 0:
+
+			if not enableRf:
+				time.sleep(0.1)
+				continue
 
 			r = self.rangeFinder.currentRange()
 
@@ -91,10 +96,11 @@ class AdvancedVehicle(Vehicle):
 
 				return False
 
-			# time.sleep(0.1)
-
 		try:
+
 			self.br()
+			logging.debug("AdvancedVehicles: all triggers received - BREAK")
+
 		except Exception as e:
 			logging.error(e)
 			
@@ -103,9 +109,11 @@ class AdvancedVehicle(Vehicle):
 	def __activateTriggers(self, count):
 
 		for pin in self.trigger.handlerSetup:
+			logging.debug("AdvancedVehicle: activating trigger for pin %x with count=%i" % (pin, count))
 			self.trigger.activate(pin, self.__triggerHandler, count)
 
 		self.triggersActive = len(self.trigger.handlerSetup) 
+		logging.debug("AdvancedVehicle: triggersActive %i" % self.triggersActive)
 
 	def __deactivateTriggers(self):
 
@@ -125,7 +133,7 @@ class AdvancedVehicle(Vehicle):
 		if count > 0:
 			self.__activateTriggers(count)
 			Vehicle.fw(self)
-			return self.__waitForTriggers()
+			return self.__waitForTriggers(True)
 		else:
 			Vehicle.fw(self)
 
@@ -155,3 +163,4 @@ class AdvancedVehicle(Vehicle):
 			return self.__waitForTriggers()
 		else:
 			Vehicle.le(self)
+

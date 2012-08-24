@@ -30,8 +30,7 @@ from device.md132a 	import MCtlChannel
 from device.dcmctl 	import DualChannelMCtl
 from device.servo  	import Servo 
 from device.srf05  	import RangeFinder 
-# from device.vehicle import AdvancedVehicle
-from device.vehicle import Vehicle
+from device.vehicle import Vehicle, AdvancedVehicle
 from device.panrf 	import PanRf 
 from device.trigger	import Trigger 
 
@@ -46,9 +45,13 @@ class Robot:
 	vehicle = None
 	panrf   = None
 
-	def __init__(self, sherpaPort): 
+	advanced = None
 
-		logging.info("Constructing carambot robot instance")
+	def __init__(self, sherpaPort, advanced = False): 
+
+		logging.info("Constructing carambot robot instance (advanced=%s)" % `advanced`)
+
+		self.advanced = advanced
 
 		# serial packet stream
 		self.ps = SerialPacketStream(sherpaPort)
@@ -67,16 +70,19 @@ class Robot:
 		mctl = DualChannelMCtl(mch1, mch2)
 
 		# construct trigger for handling external interrupts of wheel encoders
-		# tr = Trigger(self.us)
-		# tr.add(uSherpa.PIN_2_3, uSherpa.EDGE_LOWHIGH)
-		# tr.add(uSherpa.PIN_2_4, uSherpa.EDGE_LOWHIGH)
+		if advanced:
+			tr = Trigger(self.us)
+			tr.add(uSherpa.PIN_2_3, uSherpa.EDGE_LOWHIGH)
+			tr.add(uSherpa.PIN_2_4, uSherpa.EDGE_LOWHIGH)
 
 		# construct range finder
 		rf  = RangeFinder(self.us, uSherpa.PIN_2_0)
 
 		# assemble vehicle
-		# self.vehicle  = AdvancedVehicle(mctl, tr, rf)
-		self.vehicle  = Vehicle(mctl)
+		if advanced:
+			self.vehicle  = AdvancedVehicle(mctl, tr, rf)
+		else:
+			self.vehicle  = Vehicle(mctl)
 
 		# construct pan servo
 		pan = Servo(self.us, uSherpa.PIN_2_2)

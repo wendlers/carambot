@@ -8,9 +8,10 @@ import time
 from usherpa.api 		import *
 from usherpa.serialcomm import *
 
-from device.dcmctl 	import MCtlChannel, DualChannelMCtl
-from device.trigger import Trigger
-from device.vehicle	import Vehicle
+from device.md132a		import MCtlChannel
+from device.dcmctl 		import DualChannelMCtl
+from device.trigger 	import Trigger
+from device.vehicle		import Vehicle
 
 # Searial Packet stream instance
 ps = None

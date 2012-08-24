@@ -29,7 +29,7 @@ import SocketServer
 import struct
 import select
 
-from threading import Thread
+from threading import Thread, Lock
 
 from util.cursesscr import CursesScreen
 from util.udp 		import UdpClient, UdpCommException
@@ -87,6 +87,8 @@ class LogRecordSocketReceiver(SocketServer.ThreadingTCPServer, Thread):
 
         SocketServer.ThreadingTCPServer.__init__(self, (host, port), handler)
 
+        self.daemon_threads = True
+
         self.abort 	 = False 
         self.timeout = 1
         self.logname = None
@@ -126,8 +128,8 @@ class RobotClient(UdpClient, CursesScreen):
 
 	logPad 		= None
 	logPos 		= 0
-
 	logServer 	= None
+	dispWriteLog 	= None
 
 	viewMode 	= 0
 
@@ -135,7 +137,6 @@ class RobotClient(UdpClient, CursesScreen):
 	VIEW_MODE_CMDONLY	=	1
 	VIEW_MODE_LOGONLY	=	2
 	VIEW_MODE_HELP		=	3
-
 
 	def __init__(self, clientPort = CLIENT_PORT, server = SERVER, serverPort = SERVER_PORT):
 
@@ -150,6 +151,7 @@ class RobotClient(UdpClient, CursesScreen):
 		CursesScreen.__init__(self)
 		self.initScreen()
 
+		self.dispWriteLog = Lock()
 		self.logServer = LogRecordSocketReceiver()
 		self.logServer.daemon = True
 		self.logServer.start()
@@ -245,7 +247,7 @@ class RobotClient(UdpClient, CursesScreen):
 			self.cmdWin = curses.newwin(h, self.maxX, 3, 0)
 
 		if self.cmdPad == None:
-			self.cmdPad = curses.newpad(self.maxY - 5, self.maxX - 2)
+			self.cmdPad = curses.newpad(self.maxY - 5, 500)
 
 		self.cmdWin.clear()
 		self.cmdWin.bkgd(curses.color_pair(1))
@@ -272,7 +274,7 @@ class RobotClient(UdpClient, CursesScreen):
 			self.logWin = curses.newwin(h, self.maxX, y, 0)
 
 		if self.logPad == None:
-			self.logPad = curses.newpad(500, 100)
+			self.logPad = curses.newpad(500, 500)
 
 		self.logWin.clear()
 		self.logWin.bkgd(curses.color_pair(1))
@@ -285,6 +287,8 @@ class RobotClient(UdpClient, CursesScreen):
 		self.screen.addstr(y, 2, "[Server log]")
 
 	def addCommand(self, command, response, pair = 1):
+
+		self.dispWriteLog.acquire()
 
 		self.cmdSeq = self.cmdSeq + 1
 
@@ -300,11 +304,15 @@ class RobotClient(UdpClient, CursesScreen):
 		self.cmdPad.addstr(0, 17, response, curses.color_pair(pair))
 
 		if self.viewMode == self.VIEW_MODE_LOGONLY or self.viewMode == self.VIEW_MODE_HELP:
+			self.dispWriteLog.release()
 			return 
 
 		self.cmdPad.refresh(0, 0, 4, 1, h + 1, self.maxX - 2)
+		self.dispWriteLog.release()
 
 	def addLog(self, log, pair = 1):
+
+		self.dispWriteLog.acquire()
 
 		if self.viewMode == self.VIEW_MODE_LOGONLY:
 			y = 3
@@ -318,9 +326,11 @@ class RobotClient(UdpClient, CursesScreen):
 		self.logPad.addstr(0, 1, log, curses.color_pair(pair))
 
 		if self.viewMode == self.VIEW_MODE_CMDONLY or self.viewMode == self.VIEW_MODE_HELP:
+			self.dispWriteLog.release()
 			return 
 
   		self.logPad.refresh(self.logPos, 0, y + 1, 1, self.maxY - 3, self.maxX - 2)
+		self.dispWriteLog.release()
 
 	def displayHelp(self):
 

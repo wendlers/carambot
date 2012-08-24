@@ -43,16 +43,22 @@ class CarambotClient(RobotClient):
 		self.helpWin.addstr( 6,  2, "UP     Move forward")
 		self.helpWin.addstr( 7,  2, "DOWN   Move backward")
 		self.helpWin.addstr( 8,  2, "SPACE  Break")
-		self.helpWin.addstr(11,  2, "p      Autopilot (end with any other command)")
-		self.helpWin.addstr( 4, 25, "a Scan @ 180 deg.")
-		self.helpWin.addstr( 5, 25, "s Scan @ 135 deg.")
-		self.helpWin.addstr( 6, 25, "d Scan @  90 deg.")
-		self.helpWin.addstr( 7, 25, "f Scan @  45 deg.")
-		self.helpWin.addstr( 8, 25, "g Scan @   0 deg.")
-		self.helpWin.addstr( 9, 25, "w Scan area (180, 135, 90, 45, 0 deg.)")
-		self.helpWin.addstr(13,  2, "Misc commands:")
-		self.helpWin.addstr(15,  2, "PgUp   Scroll log up by 5 lines")
-		self.helpWin.addstr(16,  2, "PgDwn  Scroll log down by 5 lines")
+		self.helpWin.addstr( 9,  2, "n      Fwd 25 tics")
+		self.helpWin.addstr(10,  2, "m      Fwd 50 tics")
+		self.helpWin.addstr(11,  2, "p      Autopilot")
+		self.helpWin.addstr(12,  2, "y      Left  90 deg.")
+		self.helpWin.addstr(13,  2, "x      Left  45 deg.")
+		self.helpWin.addstr(14,  2, "v      Right 45 deg.")
+		self.helpWin.addstr(15,  2, "b      Right 90 deg.")
+		self.helpWin.addstr( 4, 30, "a Scan @ 180 deg.")
+		self.helpWin.addstr( 5, 30, "s Scan @ 135 deg.")
+		self.helpWin.addstr( 6, 30, "d Scan @  90 deg.")
+		self.helpWin.addstr( 7, 30, "f Scan @  45 deg.")
+		self.helpWin.addstr( 8, 30, "g Scan @   0 deg.")
+		self.helpWin.addstr( 9, 30, "w Scan area")
+		self.helpWin.addstr(17,  2, "Misc commands:")
+		self.helpWin.addstr(19,  2, "PgUp   Scroll log up by 5 lines")
+		self.helpWin.addstr(20,  2, "PgDwn  Scroll log down by 5 lines")
 
 	def processRobotCommands(self, c):
 
@@ -99,6 +105,34 @@ class CarambotClient(RobotClient):
 			elif c == ord('w'): 
 				cmd = "SCAN-AREA"	
 				req = { "msgId" : "scan" }
+
+			elif c == ord('y'): 
+				cmd = "TURN-180"	
+				req = { "msgId" : "tr", "deg" : -90 }
+
+			elif c == ord('x'): 
+				cmd = "TURN-135"	
+				req = { "msgId" : "tr", "deg" : -45 }
+
+			elif c == ord('c'): 
+				cmd = "TURN-90"	
+				req = { "msgId" : "tr", "deg" : 0 }
+
+			elif c == ord('v'): 
+				cmd = "TURN-45"	
+				req = { "msgId" : "tr", "deg" : 45 }
+
+			elif c == ord('b'): 
+				cmd = "TURN-0"	
+				req = { "msgId" : "tr", "deg" : 90 }
+
+			elif c == ord('n'): 
+				cmd = "FWD-25"	
+				req = { "msgId" : "fw", "tic" : 25 }
+
+			elif c == ord('m'): 
+				cmd = "FWD-50"	
+				req = { "msgId" : "fw", "tic" : 50 }
 
 			elif c == ord('p'): 
 				cmd = "AUTOPILOT"	

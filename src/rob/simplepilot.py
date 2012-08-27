@@ -63,7 +63,14 @@ class RobotPilot(Thread):
 				
 			vehicle.fw()
 			
-			while rf.currentRange() > self.minr and not self.abort:
+			cr = 0;
+	
+			while True: 
+				cr = rf.currentRange() 
+
+				if cr < self.minr or self.abort:
+					break
+
 				time.sleep(0.1)	
 					
 			vehicle.br()
@@ -72,7 +79,7 @@ class RobotPilot(Thread):
 				logging.info("Autopilot: aborted")
 				break
 
-			logging.info("Autopilot: stopped because of obstacle, scanning for new direction")
+			logging.info("Autopilot: stopped because of obstacle at %i, scanning for new direction" % cr)
 
 			# (2) scan area at 0, 45, 90, 135, 180 deg., see which has most space
 			a = panrf.scanArea()
@@ -104,10 +111,10 @@ class RobotPilot(Thread):
 
 				if self.robot.advanced:
 
-					c = (maxp - 90) / 10
+					c = int((90 - maxp) / 10)
 					logging.debug("Autopilot: start turn left for %i ticks" % c)
 
-					vehicle.le(c)
+					vehicle.le(abs(c))
 
 					logging.debug("Autopilot: end turn left for %i ticks" % c)
 
@@ -124,10 +131,10 @@ class RobotPilot(Thread):
 
 				if self.robot.advanced:
 
-					c = maxp / 10
+					c = int((90 - maxp) / 10)
 					logging.debug("Autopilot: start turn right for %i ticks" % c)
 
-					vehicle.ri(c)
+					vehicle.ri(abs(c))
 
 					logging.debug("Autopilot: end turn right for %i ticks" % c)
 

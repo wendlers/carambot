@@ -33,7 +33,7 @@ class PanRf:
 		self.pan = pan
 		self.rf  = rf
 
-	def __debouncedRangeRead(self, maxDelta = 5, maxTries = 6, compReadings = 3):
+	def __debouncedRangeRead(self, maxDelta = 10, maxTries = 10, compReadings = 4):
 
 		r  = 0 	# reading
 		pr = 0	# pre reading

@@ -146,12 +146,12 @@ class RobotClient(UdpClient, CursesScreen):
 		RobotClient.instance  	= self
 		self.serverPort 		= serverPort
 		self.server 			= server
+		self.dispWriteLog 		= Lock()
 
 		UdpClient.__init__(self, "", clientPort)
 		CursesScreen.__init__(self)
 		self.initScreen()
 
-		self.dispWriteLog = Lock()
 		self.logServer = LogRecordSocketReceiver()
 		self.logServer.daemon = True
 		self.logServer.start()
@@ -178,8 +178,9 @@ class RobotClient(UdpClient, CursesScreen):
 	def initScreen(self, refresh = False):
 
 		self.maxY, self.maxX = self.screen.getmaxyx()
-
 			
+		self.dispWriteLog.acquire()
+
 		curses.start_color()
 		curses.init_pair(1, curses.COLOR_GREEN, curses.COLOR_BLACK)
 		curses.init_pair(2, curses.COLOR_RED, curses.COLOR_BLACK)
@@ -197,6 +198,8 @@ class RobotClient(UdpClient, CursesScreen):
 			self.showCommands(refresh)
 			self.showLog(refresh)
 			self.showHelp(refresh)
+
+		self.dispWriteLog.release()
 
 	def showMenu(self, resize = False):
 

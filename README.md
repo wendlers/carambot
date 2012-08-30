@@ -58,7 +58,7 @@ For details see the uSherpa [firmware documentation] (https://github.com/wendler
 Schematics
 ----------
 
-TODO
+see doc/schematic
 
 
 Install Carambot
@@ -97,5 +97,4 @@ be issued (if your server runs on IP 192.168.1.3):
 For a list of all available command line options issue the following:
  
 	./bin/carambot-cli -h
-
 

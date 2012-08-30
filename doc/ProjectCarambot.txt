@@ -1,0 +1,183 @@
+Carambot: a uSherpa and Carambola Based Autonomous Robot 
+========================================================
+30.08.2012 Stefan Wendler
+sw@kaltpost.de
+
+This document describes the Carambot project. 
+
+For the Carambot build blog see:
+
+	http://gpio.kaltpost.de
+
+For more information on uSherpa, visit the project homepage:
+
+	http://userpa.com
+
+
+Introduction
+------------
+
+The Carambot is a 4-wheel based robot which is able to drive autonomous or remote controlled 
+from a PC. While driving, a live stream from the attached camera is transmitted. 
+
+The purpose of Carambot in its current form is to demonstrate the usage of uSherpa. uSherpa is
+a project which tries to help in integrating a microcontroller with a more powerfull system on 
+a chip (SoC) by making basic micro-controller functionality easily accesible to the SoC. Currently
+uSherpa consists of two parts: a firmware running on the micro-controller, and a client API
+running on the SoC. Communication between the firmware and the client API is done through a binary
+protocol which in general could use a varayity of different physical transports (yet only the 
+serial line is supported). The uSherpa firmware includes a basic set of operations
+that could be performed on the micro-controller (e.g. digitial IO, PWM, analog readings), but  
+it is designed to be extensible through the use with "special functions". Anyway, this project
+only uses the basic functinality to demonstrate what could be done only by using build in 
+functionality. 
+
+uSherpa firmware is written in C, and currently available for the MSP460G2553 from TI.
+The client API yet available is a Python API which could run on any SoC powerful enough
+to run Python. For this project the 8devices Carambola was choosen. 
+
+The hard- and software stack used will described in more detail in the following chapters. 
+
+
+Hardware
+--------
+
+** Parts Used
+
+*** Base Platform
+
+As a base for the robot, the 4WD Mobile Platform (SKU:ROB0003) from DFRobot was used. It has
+a DC motor per wheel, provides space for batteries and two additional platforms where one
+could mount equipment. 
+
+
+*** Motor Controller 
+
+To control the four DC motors, the MD1.3 2A Dual Motor Controller (SKU: DRI0002), also from 
+DFRobot is used. Since the two motors of each side are always operated simultaniously, they
+share one channel of the motor controller. The controller is able to handle 2A per channel. 
+ 
+
+*** Wheel Encoders
+
+Each wheel has a infra red wheel encoder mounted (but only two are used in the project). 
+The wheel ecoders again are from DFRobot (SKU:FIT0029), and they are NOT made for the
+plattform I used, since they only fit hardly into the motor box. The encoders are used for 
+turning the robot a given number of degreess left or right.
+
+
+*** Ultra Sonic Range Finder
+
+For obstacale detection, the SRF05 ultra sonic range finder is used. It could be operated 
+fully digital through a singel pin. 
+ 
+
+*** Camera
+
+The camera used for the live stream (640x480@15fps) is a Logitech 270 HD.
+
+
+*** Pan Bracket and Servo
+
+The range finder and the camera are monted on a pan-tilt bracket which allows to mount
+two servos (a normel sized one for the pan, and a micro sized one for the tilt unit). 
+In this prohject, only a servo for the pan is mounted. I used a standard servo DF05BB 
+Standard Servo (SKU:SER0020) from DFRobot. 
+
+ 
+*** Microcontroller
+
+To operate the moter controller, the wheel encoders, the range finder and the pan servo,
+a TI MSP430G2553 micro-controller attached to a TI Launchpad is used. The MCU is loaded
+with the default serial-sherpa firmware from the uSherpa project.  
+
+ 
+*** SoC
+
+The Launchpad with the MSP430 is connect to ai 8devices Carambola on a dev-board. The
+Carambola runs OpenWrt Linux including full python support. It is equipped with USB to 
+where the camera is connected, and with wifi, which is used to stream the video, and 
+to communicate with the robot through a client application. 
+
+
+*** Power Supply
+
+The dev-board on which the SoC sits has its voltage regulators already included. Power
+to the dev-board is supplied through a 7.2V LiIon battery witch about 850mA. The 
+Launchpad then is splied from the 3.3V output of the dev-board. The dev-board also 
+powers the camera through USB. With the before mentioned LiIon battery, this setup
+could be powered more than an hour. 
+
+The DC motors are supplied through six 1.2V NiMh batteries. The servo also gets its 
+power from this source, but a LM7805 5V voltage regulator is used to step the 7.2V from
+the NiMh batteries down. 
+
+
+** Schematic
+
+See doc/schematic
+
+
+Software
+--------
+
+** Firmware
+
+The firmware used on the MSP430 is the unmodified serial-sherpa firmware from the uSherpa
+project. The firmware provides basic functionality of the MCU over a binary protocol which
+is transported through the serial line a 9600 bauds. 
+
+For more details on the architecture of the firmware see the documents from 
+the usherpa-firmware project. 
+
+
+** Server
+
+*** Python Robot Server
+
+The server is the part that runs on the Caramnola SoC. It uses the MSP430 connected to the first
+serial port of the SoC to operate all the hardware. To cominicate with the MSP430, the uSherpa
+Pyton API is used. The above described hardware is mapped to the following uSherpa functions:
+
+
+Motor Controller		"digitalWrite" to operate the output pins for the controller
+
+Wheel Encoders			"externalInterrupt" with "trigger count" to turn the vehicle a
+						given number of degrees 
+
+Range Finder			"pulseLengthRead" with "drive high first" to drive the pin where
+						the range finder is connected to high for 10us, then reading the
+						length of the pulse returned by the range finder 
+
+Pan Servo				"pwmPeriod" and "pwmDutyCycle" to position the range finder to
+						a given degree 
+
+For more details on the uSherpa Python API see the usherpa-pysherpa project. 
+
+The server accepts UDP packets from a client, and logs its messages back to the client through
+a TCP/IP connections. Through the client, the server could be instructed to move the vehicle 
+(forward, backward, left, right), perform a range scan on a given servo position or put the
+robot into autnomous mode. 
+
+In autonomous mode, the robot starts driving forward. While driving forward, the range finder is
+queried continuously for the range at the servos middle position. If the range drops below a defined
+value, the robot stops and tries to find a new direction. To find the direction which has the 
+most free space, the servo is moved to 0, 45, 90, 135 and 180 deg. At each point the distance is
+measured. Then the vehicle is turned (with the help of the wheel encoders) to that direction, and
+the robot again drives forward. 
+
+
+*** Video Server
+ 
+To provide a MJPEG camera stream, mjpeag_streamer is used. Thus, the stream is accessible through 
+a browser. I found chrome working best (not having to much delay). For more information on how
+to setup MJPEG streaming see the Carambola wikit.
+
+
+** Client
+
+
+Summary
+-------
+
+

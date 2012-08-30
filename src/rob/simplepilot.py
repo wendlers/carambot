@@ -31,9 +31,6 @@ class RobotPilot(Thread):
 	robot = None
 	abort = False
 
-	# minimum distanced until robot searches new direction ...
-	minr = 150
-
 	def __init__(self, robot):
 		
 		Thread.__init__(self)
@@ -52,8 +49,7 @@ class RobotPilot(Thread):
 
 		logging.debug("Autopilot: starting (advanced=%s)" % self.robot.advanced)
 
-		if self.robot.advanced:
-			vehicle.minSafetyRange	= self.minr 
+		vehicle.minSafetyRange = rf.minRange 
 
 		while not self.abort:
 
@@ -68,7 +64,7 @@ class RobotPilot(Thread):
 			while True: 
 				cr = rf.currentRange() 
 
-				if cr < self.minr or self.abort:
+				if cr < rf.minRange or self.abort:
 					break
 
 				time.sleep(0.1)	
@@ -111,7 +107,7 @@ class RobotPilot(Thread):
 
 				if self.robot.advanced:
 
-					c = int((90 - maxp) / 10)
+					c = int((90 - maxp) / 5)
 					logging.debug("Autopilot: start turn left for %i ticks" % c)
 
 					vehicle.le(abs(c))
@@ -131,7 +127,7 @@ class RobotPilot(Thread):
 
 				if self.robot.advanced:
 
-					c = int((90 - maxp) / 10)
+					c = int((90 - maxp) / 5)
 					logging.debug("Autopilot: start turn right for %i ticks" % c)
 
 					vehicle.ri(abs(c))

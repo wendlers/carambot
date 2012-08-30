@@ -29,7 +29,8 @@ from usherpa.serialcomm import *
 from device.md132a 	import MCtlChannel
 from device.dcmctl 	import DualChannelMCtl
 from device.servo  	import Servo 
-from device.srf05  	import RangeFinder 
+# from device.srf05	import RangeFinder 
+from device.mb1000 	import RangeFinder 
 from device.vehicle import Vehicle, AdvancedVehicle
 from device.panrf 	import PanRf 
 from device.trigger	import Trigger 
@@ -65,7 +66,7 @@ class Robot:
 		self.us.reset()
 
 		# construct dual channel motor controller
-		mch1 = MCtlChannel(self.us, uSherpa.PIN_1_4, uSherpa.PIN_1_5)
+		mch1 = MCtlChannel(self.us, uSherpa.PIN_1_5, uSherpa.PIN_2_0)
 		mch2 = MCtlChannel(self.us, uSherpa.PIN_1_6, uSherpa.PIN_1_7)
 		mctl = DualChannelMCtl(mch1, mch2)
 
@@ -76,7 +77,7 @@ class Robot:
 			tr.add(uSherpa.PIN_2_4, uSherpa.EDGE_LOWHIGH)
 
 		# construct range finder
-		rf  = RangeFinder(self.us, uSherpa.PIN_2_0)
+		rf  = RangeFinder(self.us, uSherpa.PIN_1_4)
 
 		# assemble vehicle
 		if advanced:

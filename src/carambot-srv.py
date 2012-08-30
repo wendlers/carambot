@@ -85,7 +85,7 @@ class CarambotServer(RobotServer):
 				logging.debug("not turning robot")
 			else:
 
-				d = int(data["deg"] / 10)
+				d = int(data["deg"] / 5)
 
 				if d < 0:
 					logging.debug("turning robot for %i ticks left" % abs(d))

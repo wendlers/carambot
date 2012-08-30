@@ -28,14 +28,24 @@ class RangeFinder:
 	us  = None
 	pin = None 
 
-	minRange = 150
+	minRange = 30 
 
 	def __init__(self, us, pin): 
 		self.us  = us
 		self.pin = pin
 	
-		self.us.pinMode(self.pin, uSherpa.INPUT)	
+		self.us.pinMode(self.pin, uSherpa.ANALOG)	
 
 	def currentRange(self):
-		return self.us.pulselengthRead(self.pin, True); 		
+
+		a = self.us.analogRead(self.pin);
+
+		# convert value from analog to cm 
+		# - assuming Vmax is 3.3V
+		# - assuming max value from analog read is 1024
+		# - 6.4mV ~ 1inch
+		# - 1inch ~ 2.54cm
+		cm = a * 1.27899
+
+		return int(cm); 		
 

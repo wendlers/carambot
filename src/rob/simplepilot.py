@@ -49,14 +49,11 @@ class RobotPilot(Thread):
 
 		logging.debug("Autopilot: starting (advanced=%s)" % self.robot.advanced)
 
-		vehicle.minSafetyRange = rf.minRange 
-
 		while not self.abort:
 
 			# (1) move foreward until obstacle was detected
 			logging.info("Autopilot: moving forward until obstacle detected")
 
-				
 			vehicle.fw()
 			
 			cr = 0;
@@ -100,45 +97,5 @@ class RobotPilot(Thread):
 			
 			logging.info("Autopilot: most promising range is %i at %i deg." % (maxr, maxp))
 
-			# 90 deg. is center, above 90 deg. meens found max. space on left
-			if maxp > 90:
-
-				logging.info("Autopilot: turning left for new direction")
-
-				if self.robot.advanced:
-
-					c = int((90 - maxp) / 5)
-					logging.debug("Autopilot: start turn left for %i ticks" % c)
-
-					vehicle.le(abs(c))
-
-					logging.debug("Autopilot: end turn left for %i ticks" % c)
-
-				else:
-					vehicle.le()
-
-					# calulating time it take approx. to reach max. pos
-					time.sleep(0.01 * (maxp - 90.0))
-			
-			# and < 90 means found max. space on right
-			else:
-
-				logging.info("Autopilot: turning right for new direction")
-
-				if self.robot.advanced:
-
-					c = int((90 - maxp) / 5)
-					logging.debug("Autopilot: start turn right for %i ticks" % c)
-
-					vehicle.ri(abs(c))
-
-					logging.debug("Autopilot: end turn right for %i ticks" % c)
-
-				else:
-					vehicle.ri()
-
-					# calulating time it take approx. to reach max. pos
-					time.sleep(0.01 * maxp)
-
-			# no go forward, start again at (1)
-
+			# turn vehicle to position
+			vehicle.tr(maxp)

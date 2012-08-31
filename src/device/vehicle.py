@@ -27,6 +27,7 @@ import time
 class Vehicle:
 
 	mctl = None
+	turnFactor	= 0.01 
 
 	def __init__(self, dChMCtl):
 		self.mctl = dChMCtl
@@ -48,12 +49,31 @@ class Vehicle:
 		self.mctl.bw(1, 0)
 		self.mctl.fw(0, 1)	
 
+	def tr(self, deg):
+		
+		c = abs(int((90 - deg) / self.turnFactor))
+		
+		# 90 deg. is center, above 90 deg. meens found max. space on left
+		if deg > 90:
+
+			self.le()
+
+		# and < 90 means found max. space on right
+		else:
+
+			self.re()
+
+		# calulating time it take approx. to reach max. pos
+		time.sleep(0.01 * c)
+
+		self.br()
+
 class AdvancedVehicle(Vehicle):
 
 	trigger 		= None
 	triggersActive 	= 0
 	rangeFinder		= None
-	minSafetyRange	= 50
+	turnFactor		= 1.5
 
 	def __init__(self, dChMCtl, trigger, rangeFinder):
 
@@ -64,16 +84,10 @@ class AdvancedVehicle(Vehicle):
 
 	def __triggerHandler(self, msg, pin):
 
-		'''
-		if self.triggersActive - 1 == 0:
-			try:
-				Vehicle.br(self)
-			except Exception as e:
-				logging.error(e)
-		'''
-		
 		self.triggersActive = self.triggersActive - 1 
-		logging.debug("AdvancedVehicle: got trigger for pin %x, triggersActive %i" % (pin, self.triggersActive))
+
+		logging.debug("AdvancedVehicle: got trigger for pin %x, triggersActive %i" % 
+			(pin, self.triggersActive))
 
 	def __waitForTriggers(self, enableRf = False):
 
@@ -85,7 +99,7 @@ class AdvancedVehicle(Vehicle):
 
 			r = self.rangeFinder.currentRange()
 
-			if r < self.minSafetyRange:
+			if r < self.rangeFinder.minRage:
 
 				logging.info("BREAK - range finder detected obstacle at %i" % r)
 
@@ -164,3 +178,16 @@ class AdvancedVehicle(Vehicle):
 		else:
 			Vehicle.le(self)
 
+	def tr(self, deg):
+		
+		c = abs(int((90 - deg) / self.turnFactor))
+		
+		# 90 deg. is center, above 90 deg. meens found max. space on left
+		if deg > 90:
+
+			self.le(c)
+
+		# and < 90 means found max. space on right
+		else:
+
+			self.re(c)

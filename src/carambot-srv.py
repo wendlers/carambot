@@ -141,15 +141,29 @@ try:
 	parser.add_option("-v", "--verbose", dest="verboselevel", type="int",
 		help="Verbose level for logging (10: DEBUG, 50: CRITICAL)", default=20, metavar="LEVEL") 
 
+	parser.add_option("-l", "--logfile", dest="logfile", 
+		help="Log to given file", metavar="FILE") 
+
  	(options, args) = parser.parse_args()
 
-	logging.basicConfig(level=options.verboselevel)
+
+	rootLogger = logging.getLogger()
+	rootLogger.setLevel(options.verboselevel)
+
+	if not options.logfile == None:
+		fileHandler = logging.FileHandler(options.logfile)
+		rootLogger.addHandler(fileHandler) 
+		formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
+		fileHandler.setFormatter(formatter)
+	else:
+		logging.basicConfig(level=options.verboselevel)
 
 	# add remote log client (if requested)
 	if not options.logclient == None:
+
 		socketHandler = logging.handlers.SocketHandler(options.logclient, 
 			logging.handlers.DEFAULT_TCP_LOGGING_PORT)
-		rootLogger = logging.getLogger()
+
 		rootLogger.addHandler(socketHandler)
 
 	logging.info(VERSION)

@@ -190,4 +190,4 @@ class AdvancedVehicle(Vehicle):
 		# and < 90 means found max. space on right
 		else:
 
-			self.re(c)
+			self.ri(c)

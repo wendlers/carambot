@@ -73,7 +73,7 @@ class AdvancedVehicle(Vehicle):
 	trigger 		= None
 	triggersActive 	= 0
 	rangeFinder		= None
-	turnFactor		= 1.5
+	turnFactor		= 10 
 
 	def __init__(self, dChMCtl, trigger, rangeFinder):
 

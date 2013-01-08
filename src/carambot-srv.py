@@ -85,7 +85,10 @@ class CarambotServer(RobotServer):
 				logging.debug("not turning robot")
 			else:
 
-				d = int(data["deg"] / 5)
+				self.robot.vehicle.tr(int(data["deg"]))
+
+				"""
+				d = int(data["deg"] / 10)
 
 				if d < 0:
 					logging.debug("turning robot for %i ticks left" % abs(d))
@@ -93,6 +96,7 @@ class CarambotServer(RobotServer):
 				else:	
 					logging.debug("turning robot for %i ticks right" % d)
 					self.robot.vehicle.ri(d)
+				"""
 
 		elif c == "fw":
 

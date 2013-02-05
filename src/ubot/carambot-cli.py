@@ -26,7 +26,7 @@ import curses
 import traceback
 
 from optparse import OptionParser
-from rob.client import RobotClient
+from ubot.rob.client import RobotClient
 
 cli = None
 

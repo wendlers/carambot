@@ -31,8 +31,8 @@ import select
 
 from threading import Thread, Lock
 
-from util.cursesscr import CursesScreen
-from util.udp 		import UdpClient, UdpCommException
+from ubot.util.cursesscr 	import CursesScreen
+from ubot.util.udp 			import UdpClient, UdpCommException
 
 CLIENT_PORT = 50008
 SERVER      = "127.0.0.1"

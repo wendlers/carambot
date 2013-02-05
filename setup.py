@@ -28,6 +28,9 @@ uSherpa Python Library setup-script. To install this library use:
 
 '''
 
+import os
+import shutil
+
 from distutils.core import setup
 
 setup(name='carambot',
@@ -40,5 +43,24 @@ setup(name='carambot',
 	license='LGPL 2.1',
 	platforms=['Linux'],
 	package_dir = {'': 'src'},
+	packages = ['ubot', 'ubot.device', 'ubot.rob', 'ubot.util'],
 	requires = ['serial(>=2.4)', 'usherpa(>=0.1)']
 )
+
+# install wrapper scripts 
+base   = "/usr/local/bin"
+server = "%s/carambot-srv" % base
+client = "%s/carambot-cli" % base
+
+try:
+	shutil.copyfile("./bin/carambot-srv", server)
+	os.chmod(server, 0755)
+except:
+	pass
+
+try:
+	shutil.copyfile("./bin/carambot-cli", client)
+	os.chmod(client, 0755)
+except:
+	pass
+

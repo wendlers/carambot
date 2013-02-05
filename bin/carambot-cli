@@ -1,5 +1,13 @@
 #!/bin/sh
 
-export PYTHONPATH=./src
+##
+# get location for local python libraries
+##
+PD=$(python -c "from distutils.sysconfig import get_python_lib; print get_python_lib(False, False, '/usr/local')")
 
-python ./src/carambot-cli.py $@
+##
+# where to find the python start script 
+##
+PROG="$PD/ubot/carambot-cli.py"
+
+python $PROG $@

@@ -29,9 +29,9 @@ import logging.handlers
 
 from optparse import OptionParser
 
-from rob.carambot 		import Robot
-from rob.server 		import RobotServer
-from rob.simplepilot 	import RobotPilot
+from ubot.rob.carambot 		import Robot
+from ubot.rob.server 		import RobotServer
+from ubot.rob.simplepilot 	import RobotPilot
 
 srv = None
 

@@ -26,14 +26,13 @@ import logging
 from usherpa.api import *                    
 from usherpa.serialcomm import *
 
-from device.md132a 	import MCtlChannel
-from device.dcmctl 	import DualChannelMCtl
-from device.servo  	import Servo 
-# from device.srf05	import RangeFinder 
-from device.mb1000 	import RangeFinder 
-from device.vehicle import Vehicle, AdvancedVehicle
-from device.panrf 	import PanRf 
-from device.trigger	import Trigger 
+from ubot.device.md132a 	import MCtlChannel
+from ubot.device.dcmctl 	import DualChannelMCtl
+from ubot.device.servo  	import Servo 
+from ubot.device.mb1000 	import RangeFinder 
+from ubot.device.vehicle 	import Vehicle, AdvancedVehicle
+from ubot.device.panrf 		import PanRf 
+from ubot.device.trigger	import Trigger 
 
 class Robot:
 	'''

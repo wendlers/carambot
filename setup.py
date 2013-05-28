@@ -34,7 +34,7 @@ import shutil
 from distutils.core import setup
 
 setup(name='carambot',
-	version='0.1',
+	version='0.2',
 	description='carambot',
 	long_description='Smiple robot using uSherpa as a basis',
 	author='Stefan Wendler',

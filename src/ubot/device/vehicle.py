@@ -51,10 +51,10 @@ class Vehicle:
 
 	def tr(self, deg):
 		
-		c = abs(int((90 - deg) / self.turnFactor))
+		c = abs(int((90 + deg) / self.turnFactor))
 		
 		# 90 deg. is center, above 90 deg. meens found max. space on left
-		if deg > 90:
+		if deg > 0:
 
 			self.le()
 
@@ -99,7 +99,7 @@ class AdvancedVehicle(Vehicle):
 
 			r = self.rangeFinder.currentRange()
 
-			if r < self.rangeFinder.minRage:
+			if r < self.rangeFinder.minRange:
 
 				logging.info("BREAK - range finder detected obstacle at %i" % r)
 
@@ -180,10 +180,10 @@ class AdvancedVehicle(Vehicle):
 
 	def tr(self, deg):
 		
-		c = abs(int((90 - deg) / self.turnFactor))
+		c = abs(int((90 + deg) / self.turnFactor))
 		
 		# 90 deg. is center, above 90 deg. meens found max. space on left
-		if deg > 90:
+		if deg > 0:
 
 			self.le(c)
 
